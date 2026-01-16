@@ -1,0 +1,101 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:macro name="tb3_sensors" params="">
+
+    <!-- Laser -->
+    <link name="base_scan">
+      <visual>
+        <origin xyz="-0.032 0 0.0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://robot_description/models/turtlebot3_common/meshes/lds.dae"
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+        <material name="dark"/>
+      </visual>
+
+      <collision>
+        <origin xyz="-0.020 0 0.0" rpy="0 0 0"/>
+        <geometry>
+          <cylinder length="0.0315" radius="0.055"/>
+        </geometry>
+      </collision>
+
+      <inertial>
+        <mass value="0.114" />
+        <origin xyz="0 0 0" />
+        <inertia ixx="0.001" ixy="0.0" ixz="0.0"
+                 iyy="0.001" iyz="0.0"
+                 izz="0.001" />
+      </inertial>
+    </link>
+
+    <joint name="scan_joint" type="fixed">
+      <parent link="base_link"/>
+      <child link="base_scan"/>
+      <origin xyz="-0.032 0 0.171" rpy="0 0 0"/>
+    </joint>
+
+    <gazebo reference="base_scan">
+      <!-- <material>Gazebo/Black</material> -->
+      <sensor name="lds_sensor" type="ray">
+        <pose>0 0 0 0 0 0</pose>
+        <always_on>1</always_on>
+        <visualize>true</visualize>
+        <update_rate>5</update_rate>
+        <lidar>
+          <scan>
+            <horizontal>
+              <samples>360</samples>
+              <min_angle>0.0</min_angle>
+              <max_angle>6.28319</max_angle>
+            </horizontal>
+          </scan>
+          <range>
+            <min>0.12</min>
+            <max>3.5</max>
+          </range>
+          <noise>
+            <type>gaussian</type>
+            <mean>0.0</mean>
+            <stddev>0.01</stddev>
+          </noise>
+        </lidar>
+
+        <topic>scan</topic>
+        <gz_frame_id>base_scan</gz_frame_id>
+
+      </sensor>
+    </gazebo>
+
+    <!-- IMU -->
+    <link name="imu_link">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="0.001"/>
+        <inertia ixx="1e-6" ixy="0" ixz="0"
+                iyy="1e-6" iyz="0"
+                izz="1e-6"/>
+      </inertial>
+    </link>
+
+    <joint name="imu_joint" type="fixed">
+      <parent link="base_link"/>
+      <child link="imu_link"/>
+      <origin xyz="-0.032 0 0.068" rpy="0 0 0"/>
+    </joint>
+
+    <gazebo reference="imu_link">
+    <sensor name="imu_sensor" type="imu">
+      <always_on>1</always_on>
+      <update_rate>200</update_rate>
+
+      <topic>/imu</topic>
+
+      <gz_frame_id>$imu_link</gz_frame_id>
+    </sensor>
+  </gazebo>
+
+  </xacro:macro>
+
+</robot>
