@@ -5,8 +5,7 @@
     <color rgba="0.3 0.3 0.3 1.0"/>
   </material>
 
-  <xacro:arg name="namespace" default="tb3"/>
-  <xacro:arg name="use_sim_time" default="true"/>
+  <xacro:arg name="model_name" default="tb3"/>
 
   <xacro:include filename="robot_core.xacro" />
   <xacro:include filename="robot_sensors.xacro" />
@@ -14,8 +13,8 @@
 
   <xacro:macro name="tb3_robot" params="">
     <xacro:tb3_core/>
-    <xacro:tb3_sensors/>
-    <xacro:tb3_gz_control/>
+    <xacro:tb3_sensors model_name="$(arg model_name)"/>
+    <xacro:tb3_gz_control model_name="$(arg model_name)"/>
   </xacro:macro>
 
   <xacro:tb3_robot/>

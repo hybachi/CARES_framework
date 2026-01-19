@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-  <xacro:macro name="tb3_sensors" params="">
+  <xacro:macro name="tb3_sensors" params="model_name">
 
     <!-- Laser -->
     <link name="base_scan">
@@ -38,7 +38,7 @@
 
     <gazebo reference="base_scan">
       <!-- <material>Gazebo/Black</material> -->
-      <sensor name="lds_sensor" type="ray">
+      <sensor name="lds_sensor" type="gpu_lidar">
         <pose>0 0 0 0 0 0</pose>
         <always_on>1</always_on>
         <visualize>true</visualize>
@@ -62,8 +62,8 @@
           </noise>
         </lidar>
 
-        <topic>scan</topic>
-        <gz_frame_id>base_scan</gz_frame_id>
+        <topic>/model/${model_name}/scan</topic>
+        <gz_frame_id>${model_name}/base_scan</gz_frame_id>
 
       </sensor>
     </gazebo>
@@ -90,9 +90,9 @@
       <always_on>1</always_on>
       <update_rate>200</update_rate>
 
-      <topic>/imu</topic>
+      <topic>/model/${model_name}/imu</topic>
 
-      <gz_frame_id>$imu_link</gz_frame_id>
+      <gz_frame_id>${model_name}/imu_link</gz_frame_id>
     </sensor>
   </gazebo>
 
