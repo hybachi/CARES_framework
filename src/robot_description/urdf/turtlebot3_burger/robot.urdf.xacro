@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="turtlebot3_burger">
+
+  <material name="dark">
+    <color rgba="0.3 0.3 0.3 1.0"/>
+  </material>
+
+  <xacro:arg name="model_name" default="tb3"/>
+
+  <xacro:include filename="robot_core.xacro" />
+  <xacro:include filename="robot_sensors.xacro" />
+  <xacro:include filename="gz_control.xacro" />
+
+  <xacro:macro name="tb3_robot" params="">
+    <xacro:tb3_core/>
+    <xacro:tb3_sensors model_name="$(arg model_name)"/>
+    <xacro:tb3_gz_control model_name="$(arg model_name)"/>
+  </xacro:macro>
+
+  <xacro:tb3_robot/>
+
+</robot>
