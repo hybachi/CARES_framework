@@ -4,6 +4,7 @@ from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Twist
 from std_msgs.msg import String
 from cares_interfaces.msg import SwarmStatus, Capability
+from rclpy.qos import QoSProfile, ReliabilityPolicy, DurabilityPolicy, HistoryPolicy
 
 class CapabilityManager(Node):
     def __init__(self):
@@ -25,18 +26,27 @@ class CapabilityManager(Node):
         self.create_subscription(String, 'inject_fault', self.fault_callback, 10)
 
         # Publisher
+        # QoS profile
+        swarm_qos = QoSProfile(
+            reliability=ReliabilityPolicy.RELIABLE,
+            durability=DurabilityPolicy.TRANSIENT_LOCAL,
+            history=HistoryPolicy.KEEP_LAST,
+            depth=1
+            # TODO: deadline property to handle missed messages
+        )
+
         # Publishes to a global topic, but listeners filter by ID
-        self.swarm_pub = self.create_publisher(SwarmStatus, '/swarm/status', 10)
+        self.swarm_pub = self.create_publisher(SwarmStatus, '/swarm/status', swarm_qos)
         
         # Timer
-        self.create_timer(1.0, self.publish_status)
+        self.create_timer(5.0, self.publish_status) # Publish once every 5 seconds
 
     def cmd_callback(self, msg):
-        # What we WANT to do
+        # Robot mobility expectation
         self.target_speed = msg.linear.x
 
     def odom_callback(self, msg):
-        # What we are ACTUALLY doing
+        # Robot mobility reality
         self.current_speed = msg.twist.twist.linear.x
 
     def fault_callback(self, msg):
