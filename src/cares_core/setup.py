@@ -28,6 +28,8 @@ setup(
     entry_points={
         'console_scripts': [
             'capability_manager = cares_core.capability_manager:main',
+            'task_allocator = cares_core.task_allocator:main',
+            'mission_spawner = cares_core.mission_spawner:main'
         ],
     },
 )

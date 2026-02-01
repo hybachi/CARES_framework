@@ -79,7 +79,7 @@ class CapabilityManager(Node):
         }
 
         # TODO: Debug print, remove later
-        self.get_logger().info(f"Discovered {len(self.swarm_peers)} neighbours")
+        # self.get_logger().info(f"Discovered {len(self.swarm_peers)} neighbours")
 
 
     def calculate_mobility(self):
