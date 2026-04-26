@@ -25,4 +25,6 @@ __pycache__/
 
 # Environment files
 .env
-.env.default
+.env.default# pixi environments
+.pixi/*
+!.pixi/config.toml
