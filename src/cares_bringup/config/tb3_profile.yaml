@@ -1,0 +1,18 @@
+/**:
+  ros__parameters:
+    robot_type: "UGV_WHEELED"
+    model_name: "turtlebot3_burger"
+    
+    # supported_tasks: ["SEARCH", "NAVIGATE"]
+    
+    capabilities:
+      MOBILITY: 0.6
+      VISION: 0.0
+      NETWORK: 1.0
+      BATTERY: 1.0
+
+    thresholds:
+      MOBILITY: 0.3
+      VISION: 0.0
+      NETWORK: 0.4
+      BATTERY: 0.15

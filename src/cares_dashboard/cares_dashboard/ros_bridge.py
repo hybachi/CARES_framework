@@ -33,27 +33,23 @@ class RosBridge(Node):
         rid = msg.robot_id
         robot = state.get_robot(rid)
         
-        # TODO: add robot types
-        if 'tb3' in rid:
-            robot['type'] = 'UGV'
-        elif 'drone' in rid or 'crazy' in rid:
-            robot['type'] = 'UAV'
+        if hasattr(msg, 'robot_type'):
+            robot['type'] = msg.robot_type
         
         robot['status'] = 'ONLINE'
 
         for cap in msg.capabilities:
             robot['caps'][cap.type] = cap.value
             
+            if cap.type not in robot['history']:
+                robot['history'][cap.type] = []
+                
+            robot['history'][cap.type].append(cap.value)
+            if len(robot['history'][cap.type]) > 50:
+                robot['history'][cap.type].pop(0)
+
             if cap.type == 'BATTERY':
-                robot['battery'] = cap.value * 100.0 # Convert 0-1 to percent
-
-        robot['history']['mob'].append(robot['caps'].get('MOBILITY', 0.0))
-        robot['history']['sen'].append(robot['caps'].get('SENSING', 0.0)) 
-        robot['history']['net'].append(robot['caps'].get('NETWORK', 0.0))
-
-        for k in robot['history']: 
-            if len(robot['history'][k]) > 50: 
-                robot['history'][k].pop(0)
+                robot['battery'] = cap.value * 100.0
 
         self.update_metrics()
 
@@ -89,7 +85,7 @@ class RosBridge(Node):
         state.metrics['active_units'] = len(active_bots)
         
         if active_bots:
-            total_mob = sum(r['caps'].get('MOBILITY', 0) for r in active_bots)
+            total_mob = sum(r['caps'].get('MOBILITY', 0.0) for r in active_bots)
             state.metrics['swarm_mean_cap'] = round(total_mob / len(active_bots), 2)
 
     def dispatch_mission(self, task_type, x, y, prio):
