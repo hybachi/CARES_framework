@@ -11,7 +11,7 @@ from launch_ros.parameter_descriptions import ParameterValue
 
 
 def generate_launch_description():
-    pkg_dir = get_package_share_directory("robot_description")
+    pkg_dir = get_package_share_directory("cares_simulation")
     ros_gz_sim = get_package_share_directory("ros_gz_sim")
 
     # Default robot

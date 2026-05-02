@@ -1,40 +1,28 @@
 import os
+import yaml
 from ament_index_python.packages import get_package_share_directory
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, AppendEnvironmentVariable
+from launch.actions import IncludeLaunchDescription, AppendEnvironmentVariable
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration, Command
+from launch.substitutions import Command
 
 from launch_ros.actions import Node
 from launch_ros.parameter_descriptions import ParameterValue
 
-
 def generate_launch_description():
-    pkg_dir = get_package_share_directory("cares_simulation")
+    cares_sim_dir = get_package_share_directory("cares_simulation")
+    cares_bringup_dir = get_package_share_directory("cares_bringup")
     ros_gz_sim = get_package_share_directory("ros_gz_sim")
 
     # Paths
-    world_file = os.path.join(pkg_dir, "worlds", "empty_world.sdf")
-    xacro_file = os.path.join(pkg_dir, "urdf", "turtlebot3_burger", "robot.urdf.xacro")
+    world_file = os.path.join(cares_sim_dir, "worlds", "empty_world.sdf")
+    swarm_config_path = os.path.join(cares_sim_dir, "config", "swarm_config.yaml")
 
-    # Launch arguments
-    tb3_0_x = LaunchConfiguration("tb3_0_x")
-    tb3_0_y = LaunchConfiguration("tb3_0_y")
-    tb3_0_yaw = LaunchConfiguration("tb3_0_yaw")
-
-    tb3_1_x = LaunchConfiguration("tb3_1_x")
-    tb3_1_y = LaunchConfiguration("tb3_1_y")
-    tb3_1_yaw = LaunchConfiguration("tb3_1_yaw")
-
-    tb3_2_x = LaunchConfiguration("tb3_2_x")
-    tb3_2_y = LaunchConfiguration("tb3_2_y")
-    tb3_2_yaw = LaunchConfiguration("tb3_2_yaw")
-
-    # Set Gazebo Environment Variable
+    # Set Gazebo Environment Variable for Meshes
     set_env = AppendEnvironmentVariable(
         "GZ_SIM_RESOURCE_PATH",
-        os.path.join(os.path.dirname(pkg_dir)),
+        os.path.join(os.path.dirname(cares_sim_dir)),
     )
 
     # Launch Gazebo
@@ -43,18 +31,19 @@ def generate_launch_description():
             os.path.join(ros_gz_sim, "launch", "gz_sim.launch.py")
         ),
         launch_arguments={
-            "gz_args": ["-r -v4 ", world_file],
+            "gz_args": f"-r -v4 {world_file}",
             "on_exit_shutdown": "true",
         }.items(),
     )
 
-    # Function for spawning robots
-    def spawn_robot(robot_namespace, model_name, x, y, yaw):
+    def spawn_robot(robot_namespace, model_name, x, y, yaw, xacro_file, config_path):
+        # Parse Xacro
         robot_description = Command([
             "xacro ", xacro_file,
             " model_name:=", model_name,
         ])
 
+        # Gazebo -> ROS 2 Bridge
         gazebo_bridge = Node(
             package="ros_ign_bridge",
             executable="parameter_bridge",
@@ -75,6 +64,7 @@ def generate_launch_description():
             ],
         )
 
+        # Robot State Publisher (TF Tree)
         robot_state_publisher = Node(
             package="robot_state_publisher",
             executable="robot_state_publisher",
@@ -87,6 +77,7 @@ def generate_launch_description():
             }],
         )
 
+        # Spawn in Gazebo
         spawn = Node(
             package="ros_gz_sim",
             executable="create",
@@ -101,27 +92,46 @@ def generate_launch_description():
             ],
         )
 
-        return [gazebo_bridge, robot_state_publisher, spawn]
+        # Launch the CARES Core for this specific robot
+        cares_brain = IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                os.path.join(cares_bringup_dir, 'launch', 'robot.launch.py')
+            ),
+            launch_arguments={
+                'config_file': config_path,
+                'robot_id': robot_namespace
+            }.items()
+        )
+
+        return [gazebo_bridge, robot_state_publisher, spawn, cares_brain]
+
+    # Read the YAML file dynamically
+    with open(swarm_config_path, 'r') as file:
+        swarm_data = yaml.safe_load(file)
+    
+    robots = swarm_data.get('swarm', {})
+    spawn_actions = []
+
+    # Loop through all robots in the YAML
+    for robot_id, params in robots.items():
+        config_path = os.path.join(cares_bringup_dir, 'config', params['config'])
+        xacro_file = os.path.join(cares_sim_dir, "urdf", params['urdf'])
+
+        x = str(params.get('x', 0.0))
+        y = str(params.get('y', 0.0))
+        yaw = str(params.get('yaw', 0.0))
+
+        robot_nodes = spawn_robot(
+            robot_namespace=robot_id,
+            model_name=robot_id,
+            x=x, y=y, yaw=yaw,
+            xacro_file=xacro_file,
+            config_path=config_path
+        )
+        
+        spawn_actions.extend(robot_nodes)
 
     return LaunchDescription([
         set_env,
         launch_gazebo,
-
-        # Declare pose
-        DeclareLaunchArgument("tb3_0_x", default_value="0.0"),
-        DeclareLaunchArgument("tb3_0_y", default_value="0.0"),
-        DeclareLaunchArgument("tb3_0_yaw", default_value="0.0"),
-
-        DeclareLaunchArgument("tb3_1_x", default_value="1.0"),
-        DeclareLaunchArgument("tb3_1_y", default_value="0.0"),
-        DeclareLaunchArgument("tb3_1_yaw", default_value="0.0"),
-
-        DeclareLaunchArgument("tb3_2_x", default_value="0.0"),
-        DeclareLaunchArgument("tb3_2_y", default_value="1.0"),
-        DeclareLaunchArgument("tb3_2_yaw", default_value="0.0"),
-
-        # Spawn Robots
-        *spawn_robot("tb3_0", "tb3_0", tb3_0_x, tb3_0_y, tb3_0_yaw),
-        *spawn_robot("tb3_1", "tb3_1", tb3_1_x, tb3_1_y, tb3_1_yaw),
-        *spawn_robot("tb3_2", "tb3_2", tb3_2_x, tb3_2_y, tb3_2_yaw),
-    ])
+    ] + spawn_actions)

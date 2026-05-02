@@ -1,4 +1,3 @@
-from dataclasses import dataclass, field
 from typing import Dict, List, Any
 
 # Global Data Store
@@ -27,11 +26,11 @@ def get_robot(rid):
     if rid not in robots:
         robots[rid] = {
             'id': rid,
-            'type': 'UGV' if 'tb3' in rid else 'UAV',
+            'type': 'UNKNOWN',
             'status': 'IDLE',
             'battery': 100.0,
-            'caps': {'MOBILITY': 0.0, 'SENSING': 0.0, 'NETWORK': 0.0},
-            'history': {'mob': [], 'sen': [], 'net': []}, # For time-series
+            'caps': {},
+            'history': {},
             'pose': {'x': 0, 'y': 0, 'z': 0}
         }
     return robots[rid]

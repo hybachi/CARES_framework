@@ -38,7 +38,10 @@ def overview_page():
                 snapshot_container.clear()
                 with snapshot_container:
                     for rid, r in sorted(state.robots.items()):
-                        health = sum(r['caps'].values()) / 3
+                        caps = r['caps']
+                        
+                        health = sum(caps.values()) / max(1, len(caps)) if caps else 0.0
+                        
                         color = 'bg-emerald-500' if health > 0.7 else ('bg-yellow-500' if health > 0.4 else 'bg-red-500')
                         with ui.card().classes('w-full bg-slate-900 border border-slate-700 p-2'):
                             with ui.row().classes('w-full justify-between items-center mb-1'):

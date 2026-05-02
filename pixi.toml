@@ -7,7 +7,8 @@ version = "0.1.0"
 
 [tasks]
 build = "colcon build"
-sim = "ros2 launch cares_simulation single_tb3.launch.py"
+sim = "ros2 launch cares_simulation swarm_sim.launch.py"
+dash = "ros2 run cares_dashboard dashboard"
 
 [activation]
 scripts = ["install/setup.sh"]
@@ -24,3 +25,4 @@ ros-humble-ros-gz-sim = ">=0.244.20,<0.245"
 ros-humble-ros-ign-bridge = ">=0.244.20,<0.245"
 nicegui = ">=3.10.0,<4"
 plotly = ">=6.6.0,<7"
+ros-humble-xacro = ">=2.0.13,<3"

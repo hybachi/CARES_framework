@@ -14,8 +14,23 @@ class CapabilityManager(Node):
         super().__init__('capability_manager')
         
         # Parameters
-        self.declare_parameter('robot_id', 'tb3_0')
+        self.declare_parameter('robot_id', 'unknown')
+        self.declare_parameter('robot_type', 'UGV')
+
         self.robot_id = self.get_parameter('robot_id').value
+        self.robot_type = self.get_parameter('robot_type').value
+
+        self.caps = {}
+        self.thresholds = {}
+        cap_types = ['MOBILITY', 'VISION', 'NETWORK', 'BATTERY']
+
+        for cap in cap_types:
+            self.declare_parameter(f'capabilities.{cap}', 0.0)
+            self.declare_parameter(f'thresholds.{cap}', 0.2)
+
+            self.caps[cap] = self.get_parameter(f'capabilities.{cap}').value
+            self.thresholds[cap] = self.get_parameter(f'thresholds.{cap}').value
+
         
         # State variables
         self.current_speed = 0.0
@@ -126,28 +141,16 @@ class CapabilityManager(Node):
         msg = SwarmStatus()
         msg.header.stamp = self.get_clock().now().to_msg()
         msg.robot_id = self.robot_id
+        msg.robot_type = self.robot_type
 
-        # MOBILITY
-        mob = Capability()
-        mob.type = "MOBILITY"
-        mob.value = self.calculate_mobility()
-        mob.is_degraded = mob.value < 0.5
-        msg.capabilities.append(mob)
+        self.caps['BATTERY'] = max(0.0, self.caps['BATTERY'] - 0.001)
 
-        # BATTERY (Simulated decay)
-        self.battery_level = max(0.0, self.battery_level - 0.001)
-        bat = Capability()
-        bat.type = "BATTERY"
-        bat.value = self.battery_level
-        bat.is_degraded = self.battery_level < 0.2
-        msg.capabilities.append(bat)
-
-        # NETWORK
-        net = Capability()
-        net.type = "NETWORK"
-        net.value = self.calculate_network_health()
-        net.is_degraded = net.value < 0.5
-        msg.capabilities.append(net)
+        for cap, current_val in self.caps.items():
+            c = Capability()
+            c.type = cap
+            c.value = current_val
+            c.is_degraded = c.value < self.thresholds.get(cap, 0.2)
+            msg.capabilities.append(c)
 
         self.swarm_pub.publish(msg)
     

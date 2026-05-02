@@ -43,7 +43,7 @@ def status_page():
                     
                     fig = go.Figure(go.Scatterpolar(
                         r=[0, 0, 0, 0],
-                        theta=['MOB', 'SEN', 'NET', 'MOB'],
+                        theta=['-', '-', '-', '-'],
                         fill='toself', line_color='#10b981', hoverinfo='skip'
                     ))
                     fig.update_layout(
@@ -63,11 +63,18 @@ def status_page():
             for rid, (plot, lbl) in chart_refs.items():
                 if rid in state.robots:
                     r = state.robots[rid]
-
                     lbl.set_text(f"Status: {r['status']}")
                     
-                    new_r = [r['caps']['MOBILITY'], r['caps']['SENSING'], r['caps']['NETWORK'], r['caps']['MOBILITY']]
-                    plot.figure.data[0].r = new_r
-                    plot.update()
+                    plot_caps = {k: v for k, v in r['caps'].items() if k != 'BATTERY'}
+                    if plot_caps:
+                        categories = list(plot_caps.keys())
+                        values = list(plot_caps.values())
+                        
+                        categories.append(categories[0])
+                        values.append(values[0])
+                        
+                        plot.figure.data[0].r = values
+                        plot.figure.data[0].theta = categories
+                        plot.update()
 
         ui.timer(0.5, update_charts)

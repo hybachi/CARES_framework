@@ -63,3 +63,83 @@ pixi shell
 # You are now inside the environment
 ros2 launch ...
 ```
+
+## Configuration
+
+Swarm compositions and robot capabilities are defined entirely via YAML files located in the `cares_bringup/config/` directory.
+
+### Robot Profiles
+
+A **Robot Profile** defines the genetic makeup of a robot type (e.g., a TurtleBot3 or a JetHexa). It defines base capabilities and operational thresholds (to be extended later).
+
+Example: `cares_bringup/config/tb3_profile.yaml`
+
+```yaml
+/**:
+  ros__parameters:
+    robot_type: "UGV_WHEELED"
+    model_name: "turtlebot3_burger"
+    
+    # Base Capabilities (0.0 to 1.0)
+    capabilities:
+      MOBILITY: 1.0
+      VISION: 0.0
+      NETWORK: 1.0
+      BATTERY: 1.0
+
+    # Degradation Thresholds (Triggers re-allocation)
+    thresholds:
+      MOBILITY: 0.3
+      VISION: 0.4
+      BATTERY: 0.15
+
+```
+
+### Swarm Configuration
+
+The `swarm_config.yaml` file located in `cares_simulation/config/` directory is used to generate the simulation fleet. Edit this file to add or remove robots from the simulation.
+
+Example: 
+
+```yaml
+swarm:
+  tb3_0:
+    config: "tb3_profile.yaml"
+    urdf: "turtlebot3/robot.urdf.xacro"
+    x: 0.0
+    y: 0.0
+    yaw: 0.0
+    
+  tb3_1:
+    config: "tb3_profile.yaml"
+    urdf: "turtlebot3/robot.urdf.xacro"
+    x: 1.0
+    y: 0.0
+    yaw: 0.0
+    
+  jethexa_0:
+    config: "jethexa_profile.yaml"
+    urdf: "jethexa/robot.urdf.xacro"
+    x: 0.0
+    y: 1.0
+    yaw: 0.0
+
+```
+
+> **Note**: The launch file will search for config files in `cares_bringup/config/` and urdf files inside `cares_simulation/urdf/`.
+
+## Running the Simulation
+
+Once the configuration is set, launching the swarm simulation in Gazebo and running the HSI dashboard uses the following commands.
+
+#### Launch the Simulation
+
+```bash
+pixi run sim
+```
+
+#### Start the Dashboard
+
+```bash
+pixi run dash
+```
