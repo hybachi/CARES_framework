@@ -18,6 +18,8 @@ compilers = ">=1.11.0,<2"
 pkg-config = ">=0.29.2,<0.30"
 cmake = "<4"
 ros-humble-xacro = ">=2.0.13,<3"
+ros-humble-cartographer = ">=2.0.0,<3"
+ros-humble-cartographer-ros = ">=2.0.9002,<3"
 
 # PC ONLY (linux-64)
 [target.linux-64.dependencies]
