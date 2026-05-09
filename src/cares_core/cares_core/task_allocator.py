@@ -36,6 +36,7 @@ class TaskAllocator(Node):
         self.log_pub = self.create_publisher(String, '/swarm/logs', 10)
         self.task_pub = self.create_publisher(Task, '/mission/tasks', 10)
         self.alloc_pub = self.create_publisher(TaskAllocation, '/swarm/allocation', 10)
+        self.exec_pub = self.create_publisher(Task, 'execute_task', 10)
 
         # Timers
         self.create_timer(2.0, self.health_check)
@@ -254,7 +255,9 @@ class TaskAllocator(Node):
         self.assigned_tasks[task.task_id] = self.robot_id
 
         self.publish_log(f"EXECUTION STARTED: Driving to {task.location.x}, {task.location.y}")
-        # TODO: implement task execution logic
+        
+        self.exec_pub.publish(task)
+        #TODO: implement different task types
 
 
     def abort_task(self, task):

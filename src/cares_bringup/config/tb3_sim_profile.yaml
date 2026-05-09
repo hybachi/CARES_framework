@@ -24,10 +24,9 @@
       battery_failure: 0.5
 
     telemetry:
-      has_battery: true # specific for simulations
-      battery_topic: "battery_state"
-      battery_v_max: 12.6
-      battery_v_min: 11.1
+      has_battery: false # specific for simulations
+      drain_rate_idle: 0.0005
+      drain_rate_active: 0.002
       
       watchdogs:
         topics: ["odom", "scan"]
