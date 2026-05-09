@@ -1,4 +1,4 @@
-[project]
+[workspace]
 authors = ["Hiba Anwar <hiba2anwar@gmail.com>"]
 channels = ["https://prefix.dev/robostack-humble", "https://prefix.dev/conda-forge"]
 name = "cares_ws"
@@ -19,9 +19,6 @@ pkg-config = ">=0.29.2,<0.30"
 cmake = "<4"
 ros-humble-xacro = ">=2.0.13,<3"
 
-[tasks]
-build = "colcon build"
-
 # PC ONLY (linux-64)
 [target.linux-64.dependencies]
 ros-humble-desktop = ">=0.10.0,<0.11" 
@@ -33,7 +30,10 @@ plotly = ">=6.6.0,<7"
 [target.linux-64.tasks]
 sim = "ros2 launch cares_bringup swarm_sim.launch.py"
 dash = "ros2 run cares_dashboard dashboard"
+build = "colcon build"
 
 # ROBOT ONLY (linux-aarch64)
 # [target.linux-aarch64.dependencies]
-# [target.linux-aarch64.tasks]
+[target.linux-aarch64.tasks]
+build = "colcon build --packages-ignore cares_dashboard cares_simulation"
+tb3_launch = "ros2 launch cares_bringup robot.launch.py execution_interface:=nav2 config_name:=tb3_profile.yaml"
