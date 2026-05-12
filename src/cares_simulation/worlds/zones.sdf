@@ -64,7 +64,7 @@
             <diffuse>1 1 1 1</diffuse>
             <pbr>
                 <metal>
-                    <albedo_map>model://robot_description/models/tags/id_0.png</albedo_map>
+                    <albedo_map>model://cares_simulation/models/tags/id_0.png</albedo_map>
                 </metal>
             </pbr>
           </material>
@@ -111,7 +111,7 @@
             <diffuse>1 1 1 1</diffuse>
             <pbr>
                 <metal>
-                    <albedo_map>model://robot_description/models/tags/id_1.png</albedo_map>
+                    <albedo_map>model://cares_simulation/models/tags/id_1.png</albedo_map>
                 </metal>
             </pbr>
           </material>
@@ -150,7 +150,7 @@
             <diffuse>1 1 1 1</diffuse>
             <pbr>
                 <metal>
-                    <albedo_map>model://robot_description/models/tags/id_2.png</albedo_map>
+                    <albedo_map>model://cares_simulation/models/tags/id_2.png</albedo_map>
                 </metal>
             </pbr>
           </material>
