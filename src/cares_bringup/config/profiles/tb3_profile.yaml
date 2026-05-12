@@ -49,4 +49,5 @@
         topics: ["odom", "scan"]
         types: ["nav_msgs.msg.Odometry", "sensor_msgs.msg.LaserScan"]
         capabilities: ["MOBILITY", "VISION"]
+        reliability:  ["reliable", "best_effort"]
         timeouts: [2.0, 2.0]
