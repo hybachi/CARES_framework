@@ -15,6 +15,9 @@ def generate_launch_description():
     hardware_group = GroupAction([
         PushRosNamespace(robot_id),
         SetParameter(name='frame_prefix', value=[robot_id, '/']),
+        SetParameter(name='frame_id', value=[robot_id, '/base_scan']),
+        SetParameter(name='odom_frame', value=[robot_id, '/odom']),
+        SetParameter(name='base_frame', value=[robot_id, '/base_footprint']),
         SetRemap(src='/tf', dst='tf'),
         SetRemap(src='/tf_static', dst='tf_static'),
         IncludeLaunchDescription(
