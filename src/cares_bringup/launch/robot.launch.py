@@ -81,25 +81,21 @@ def generate_launch_description():
         env_vars = hw.get('env_vars', {})
 
         if hw_pkg and hw_launch:
-            try:
-                hw_dir = get_package_share_directory(hw_pkg)
+            hw_dir = get_package_share_directory(hw_pkg)
 
-                for key, value in env_vars.items():
-                    actions.append(SetEnvironmentVariable(str(key), str(value)))
+            for key, value in env_vars.items():
+                actions.append(SetEnvironmentVariable(str(key), str(value)))
 
-                actions.append(
-                    GroupAction([
-                        PushRosNamespace(robot_id_val),
-                        IncludeLaunchDescription(
-                            PythonLaunchDescriptionSource(
-                                os.path.join(hw_dir, 'launch', hw_launch)
-                            )
+            actions.append(
+                GroupAction([
+                    PushRosNamespace(robot_id_val),
+                    IncludeLaunchDescription(
+                        PythonLaunchDescriptionSource(
+                            os.path.join(hw_dir, 'launch', hw_launch)
                         )
-                    ])
-                )
-
-            except Exception as e:
-                print(f"Hardware package {hw_pkg} not found or failed: {e}")
+                    )
+                ])
+            )
 
         # Nav2 stack 
         nav2_cfg = params.get('nav2', {})
