@@ -23,6 +23,20 @@
       network_failure: 0.0
       battery_failure: 0.5
 
+    hardware:
+      bringup_package: "turtlebot3_bringup"
+      bringup_launch: "robot.launch.py"
+    
+    nav2:
+      enabled: true
+      use_sim_time: false
+      map_yaml: "/"
+      params_file: "tb3_nav2_params.yaml"
+      initial_pose:
+        x: 0.0
+        y: 0.0
+        yaw_degrees: 0.0
+
     telemetry:
       has_battery: true # specific for simulations
       battery_topic: "battery_state"

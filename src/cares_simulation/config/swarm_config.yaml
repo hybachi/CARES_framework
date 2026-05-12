@@ -2,26 +2,38 @@ swarm:
   tb3_0:
     config: "tb3_sim_profile.yaml"
     urdf: "turtlebot3/robot.urdf.xacro"
-    execution_interface: "cmd_vel"
+    execution_interface: "nav2"
     x: 0.0
     y: 0.0
     z: 0.1
+    initial_pose:
+      x: 0.0
+      y: 0.0
+      yaw_degrees: 0.0
 
-  tb3_1:
-    config: "tb3_sim_profile.yaml"
-    urdf: "turtlebot3/robot.urdf.xacro"
-    execution_interface: "cmd_vel"
-    x: 1.0
-    y: 0.0
-    z: 0.1
+  # tb3_1:
+  #   config: "tb3_sim_profile.yaml"
+  #   urdf: "turtlebot3/robot.urdf.xacro"
+  #   execution_interface: "nav2"
+  #   x: 1.0
+  #   y: 0.0
+  #   z: 0.1
+  #   initial_pose:
+  #     x: 1.0
+  #     y: 0.0
+  #     yaw_degrees: 0.0
 
-  tb3_2:
-    config: "tb3_sim_profile.yaml"
-    urdf: "turtlebot3/robot.urdf.xacro"
-    execution_interface: "cmd_vel"
-    x: 0.0
-    y: 1.0
-    z: 0.1
+  # tb3_2:
+  #   config: "tb3_sim_profile.yaml"
+  #   urdf: "turtlebot3/robot.urdf.xacro"
+  #   execution_interface: "nav2"
+  #   x: 0.0
+  #   y: 1.0
+  #   z: 0.1
+  #   initial_pose:
+  #     x: 0.0
+  #     y: 1.0
+  #     yaw_degrees: 0.0
     
   # jethexa_0:
   #   config: "jethexa_profile.yaml"

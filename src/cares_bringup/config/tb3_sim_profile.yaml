@@ -23,8 +23,21 @@
       network_failure: 0.0
       battery_failure: 0.5
 
+    hardware:
+      bringup_package: ""
+    
+    nav2:
+      enabled: true
+      use_sim_time: true
+      map_yaml: "empty_map.yaml"
+      params_file: "tb3_nav2_params.yaml"
+      initial_pose:
+        x: 0.0
+        y: 0.0
+        yaw_degrees: 0.0
+
     telemetry:
-      has_battery: false # specific for simulations
+      has_battery: false
       drain_rate_idle: 0.0005
       drain_rate_active: 0.002
       

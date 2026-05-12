@@ -8,6 +8,11 @@ version = "0.1.0"
 [activation]
 scripts = ["install/setup.sh"]
 
+[activation.env]
+RMW_IMPLEMENTATION = "rmw_cyclonedds_cpp"
+#RMW_IMPLEMENTATION = "rmw_fastrtps_cpp"
+#FASTRTPS_DEFAULT_PROFILES_FILE = "fastdds.xml"
+
 # CORE SETUP
 [dependencies]
 ros-humble-ros-base = ">=0.10.0,<0.11"
@@ -18,8 +23,11 @@ compilers = ">=1.11.0,<2"
 pkg-config = ">=0.29.2,<0.30"
 cmake = "<4"
 ros-humble-xacro = ">=2.0.13,<3"
-ros-humble-cartographer = ">=2.0.0,<3"
-ros-humble-cartographer-ros = ">=2.0.9002,<3"
+ros-humble-navigation2 = ">=1.1.18,<2"
+ros-humble-nav2-bringup = ">=1.1.18,<2"
+ros-humble-nav2-msgs = ">=1.1.18,<2"
+ros-humble-topic-tools = ">=1.1.1,<2"
+ros-humble-behaviortree-cpp-v3 = ">=3.8.7,<4"
 
 # PC ONLY (linux-64)
 [target.linux-64.dependencies]
@@ -30,16 +38,12 @@ nicegui = ">=3.10.0,<4"
 plotly = ">=6.6.0,<7"
 
 [target.linux-64.tasks]
-sim = "ros2 launch cares_bringup swarm_sim.launch.py"
+sim = "ros2 launch cares_simulation swarm_sim.launch.py"
 dash = "ros2 run cares_dashboard dashboard"
 build = "colcon build"
 
 # ROBOT ONLY (linux-aarch64)
-[target.linux-aarch64.dependencies]
-ros-humble-navigation2 = ">=1.1.18,<2"
-ros-humble-nav2-bringup = ">=1.1.18,<2"
-ros-humble-nav2-msgs = ">=1.1.18,<2"
+# [target.linux-aarch64.dependencies]
 
 [target.linux-aarch64.tasks]
 build = "colcon build --packages-ignore cares_dashboard cares_simulation"
-tb3_launch = "ros2 launch cares_bringup robot.launch.py execution_interface:=nav2 config_name:=tb3_profile.yaml"
