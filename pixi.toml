@@ -47,4 +47,5 @@ build = "colcon build"
 
 [target.linux-aarch64.tasks]
 build = "colcon build --packages-ignore cares_dashboard cares_simulation"
-tb3 = "ros2 launch cares_bringup robot.launch.py robot_id:=tb3_0 config_name:=tb3_profile.yaml"
+tb3_hardware = "ros2 launch cares_bringup tb3_hardware.launch.py robot_id:=tb3_0"
+tb3_brain = "ros2 launch cares_bringup robot.launch.py robot_id:=tb3_0 config_name:=tb3_profile.yaml"
