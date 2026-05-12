@@ -3,18 +3,18 @@ import yaml
 import tempfile
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction, SetEnvironmentVariable, GroupAction
 from launch.conditions import LaunchConfigurationEquals
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
-from launch_ros.actions import Node
+from launch_ros.actions import Node, PushRosNamespace
 from launch_ros.substitutions import FindPackageShare
 from ament_index_python.packages import get_package_share_directory
 
 def generate_launch_description():
-    robot_id    = LaunchConfiguration('robot_id')
+    robot_id = LaunchConfiguration('robot_id')
     config_name = LaunchConfiguration('config_name')
-    config_path = PathJoinSubstitution([FindPackageShare('cares_bringup'), 'config', config_name])
+    config_path = PathJoinSubstitution([FindPackageShare('cares_bringup'), 'config', 'profiles', config_name])
 
     args = [
         DeclareLaunchArgument('config_name', default_value='tb3_profile.yaml'),
@@ -78,20 +78,28 @@ def generate_launch_description():
         hw = params.get('hardware', {})
         hw_pkg = hw.get('bringup_package', '')
         hw_launch = hw.get('bringup_launch', '')
+        env_vars = hw.get('env_vars', {})
 
         if hw_pkg and hw_launch:
             try:
                 hw_dir = get_package_share_directory(hw_pkg)
+
+                for key, value in env_vars.items():
+                    actions.append(SetEnvironmentVariable(str(key), str(value)))
+
                 actions.append(
-                    IncludeLaunchDescription(
-                        PythonLaunchDescriptionSource(
-                            os.path.join(hw_dir, 'launch', hw_launch)
+                    GroupAction([
+                        PushRosNamespace(robot_id_val),
+                        IncludeLaunchDescription(
+                            PythonLaunchDescriptionSource(
+                                os.path.join(hw_dir, 'launch', hw_launch)
+                            )
                         )
-                    )
+                    ])
                 )
+
             except Exception as e:
-                # Package not installed
-                pass
+                print(f"Hardware package {hw_pkg} not found or failed: {e}")
 
         # Nav2 stack 
         nav2_cfg = params.get('nav2', {})
@@ -119,7 +127,6 @@ def generate_launch_description():
             x = context.launch_configurations.get('initial_x') or str(pose_cfg.get('x', 0.0))
             y = context.launch_configurations.get('initial_y') or str(pose_cfg.get('y', 0.0))
             yaw = context.launch_configurations.get('initial_yaw') or str(pose_cfg.get('yaw_degrees', 0.0))
-            cov = pose_cfg.get('covariance_level', 'approximate')
 
             actions.append(
                 IncludeLaunchDescription(
@@ -134,7 +141,6 @@ def generate_launch_description():
                         'initial_x': x,
                         'initial_y': y,
                         'initial_yaw': yaw,
-                        'covariance_level': cov,
                     }.items()
                 )
             )

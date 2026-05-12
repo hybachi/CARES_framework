@@ -26,9 +26,11 @@
     hardware:
       bringup_package: "turtlebot3_bringup"
       bringup_launch: "robot.launch.py"
+      env_vars:
+        TURTLEBOT3_MODEL: "burger"
     
     nav2:
-      enabled: true
+      enabled: false
       use_sim_time: false
       map_yaml: "/"
       params_file: "tb3_nav2_params.yaml"
@@ -38,7 +40,7 @@
         yaw_degrees: 0.0
 
     telemetry:
-      has_battery: true # specific for simulations
+      has_battery: true
       battery_topic: "battery_state"
       battery_v_max: 12.6
       battery_v_min: 11.1
