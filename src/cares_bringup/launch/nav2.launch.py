@@ -2,7 +2,7 @@ import os
 import tempfile
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, OpaqueFunction, IncludeLaunchDescription
+from launch.actions import DeclareLaunchArgument, OpaqueFunction, IncludeLaunchDescription, TimerAction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from nav2_common.launch import RewrittenYaml
 
@@ -78,6 +78,11 @@ def generate_launch_description():
             }.items()
         )
 
-        return [nav2_bringup_launch]
+        delayed_nav2_launch = TimerAction(
+            period=6.0,
+            actions=[nav2_bringup_launch]
+        )
+
+        return [delayed_nav2_launch]
 
     return LaunchDescription(args + [OpaqueFunction(function=launch_nav2)])

@@ -9,9 +9,8 @@ version = "0.1.0"
 scripts = ["install/setup.sh"]
 
 [activation.env]
-RMW_IMPLEMENTATION = "rmw_cyclonedds_cpp"
-#RMW_IMPLEMENTATION = "rmw_fastrtps_cpp"
-#FASTRTPS_DEFAULT_PROFILES_FILE = "fastdds.xml"
+RMW_IMPLEMENTATION = "rmw_fastrtps_cpp"
+FASTRTPS_DEFAULT_PROFILES_FILE = "fastdds.xml"
 
 # CORE SETUP
 [dependencies]
@@ -27,7 +26,6 @@ ros-humble-navigation2 = ">=1.1.18,<2"
 ros-humble-nav2-bringup = ">=1.1.18,<2"
 ros-humble-nav2-msgs = ">=1.1.18,<2"
 ros-humble-topic-tools = ">=1.1.1,<2"
-ros-humble-behaviortree-cpp-v3 = ">=3.8.7,<4"
 
 # PC ONLY (linux-64)
 [target.linux-64.dependencies]
@@ -39,6 +37,7 @@ plotly = ">=6.6.0,<7"
 
 [target.linux-64.tasks]
 sim = "ros2 launch cares_simulation swarm_sim.launch.py"
+rviz = "ros2 launch cares_bringup rviz.launch.py"
 dash = "ros2 run cares_dashboard dashboard"
 build = "colcon build"
 

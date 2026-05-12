@@ -13,7 +13,7 @@ def generate_launch_description():
     cares_bringup_dir = get_package_share_directory("cares_bringup")
     ros_gz_sim = get_package_share_directory("ros_gz_sim")
 
-    world_file = os.path.join(cares_sim_dir, "worlds", "empty_world.sdf")
+    world_file = os.path.join(cares_sim_dir, "worlds", "zones.sdf")
     swarm_config_path = os.path.join(cares_sim_dir, "config", "swarm_config.yaml")
 
     set_env = AppendEnvironmentVariable(
@@ -48,6 +48,7 @@ def generate_launch_description():
             parameters=[{'use_sim_time': True}],
             output="screen",
             arguments=[
+                    "/clock@rosgraph_msgs/msg/Clock[ignition.msgs.Clock",
                     f"/model/{model_name}/cmd_vel@geometry_msgs/msg/Twist]ignition.msgs.Twist",
                     f"/model/{model_name}/odom@nav_msgs/msg/Odometry[ignition.msgs.Odometry",
                     f"/model/{model_name}/scan@sensor_msgs/msg/LaserScan[ignition.msgs.LaserScan",
@@ -55,6 +56,7 @@ def generate_launch_description():
                     f"/model/{model_name}/joint_states@sensor_msgs/msg/JointState[ignition.msgs.Model",
                     f"/model/{model_name}/tf@tf2_msgs/msg/TFMessage[ignition.msgs.Pose_V",
                     "--ros-args",
+                    "-r", "/clock:=/clock",
                     "-r", f"/model/{model_name}/cmd_vel:=cmd_vel",
                     "-r", f"/model/{model_name}/odom:=odom",
                     "-r", f"/model/{model_name}/scan:=scan",
