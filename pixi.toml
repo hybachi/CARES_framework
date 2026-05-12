@@ -11,7 +11,7 @@ scripts = ["install/setup.sh"]
 [activation.env]
 RMW_IMPLEMENTATION = "rmw_fastrtps_cpp"
 FASTRTPS_DEFAULT_PROFILES_FILE = "fastdds.xml"
-ROS_DOMAIN_ID = 42
+ROS_DOMAIN_ID = "42"
 
 # CORE SETUP
 [dependencies]
