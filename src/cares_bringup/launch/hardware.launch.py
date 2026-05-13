@@ -64,6 +64,7 @@ def generate_launch_description():
         actions = []
 
         for driver in hw.get('drivers', []):
+            print(f"[hardware.launch] Processing driver: {driver}")
             pkg         = driver['package']
             launch_file = driver['launch']
             raw_args    = driver.get('args', {})
@@ -72,7 +73,17 @@ def generate_launch_description():
                 for k, v in raw_args.items()
             }
 
+            print(f"[hardware.launch] hw block: {hw}")
+            print(f"[hardware.launch] drivers: {hw.get('drivers', 'KEY NOT FOUND')}")
+
             pkg_dir = find_package_share(pkg)
+            print(f"[hardware.launch] pkg_dir: {pkg_dir}")
+
+            launch_path = os.path.join(pkg_dir, 'launch', launch_file)
+            print(f"[hardware.launch] launch_path: {launch_path}")
+            print(f"[hardware.launch] exists: {os.path.isfile(launch_path)}")
+            print(f"[hardware.launch] resolved args: {resolved}")
+
             if pkg_dir is None:
                 print(f"[hardware.launch] WARNING: '{pkg}' not found anywhere, skipping")
                 continue
