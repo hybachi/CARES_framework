@@ -3,7 +3,7 @@ import yaml
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import (
-    DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction
+    DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction, LogInfo
 )
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 
@@ -64,7 +64,9 @@ def generate_launch_description():
         actions = []
 
         for driver in hw.get('drivers', []):
-            print(f"[hardware.launch] Processing driver: {driver}")
+            # Log initial parsing telemetry
+            actions.append(LogInfo(msg=f"[hardware.launch] Processing driver: {driver}"))
+            
             pkg         = driver['package']
             launch_file = driver['launch']
             raw_args    = driver.get('args', {})
@@ -73,33 +75,37 @@ def generate_launch_description():
                 for k, v in raw_args.items()
             }
 
-            print(f"[hardware.launch] hw block: {hw}")
-            print(f"[hardware.launch] drivers: {hw.get('drivers', 'KEY NOT FOUND')}")
+            actions.append(LogInfo(msg=f"[hardware.launch] hw block: {hw}"))
+            actions.append(LogInfo(msg=f"[hardware.launch] drivers: {hw.get('drivers', 'KEY NOT FOUND')}"))
 
             pkg_dir = find_package_share(pkg)
-            print(f"[hardware.launch] pkg_dir: {pkg_dir}")
-
-            launch_path = os.path.join(pkg_dir, 'launch', launch_file)
-            print(f"[hardware.launch] launch_path: {launch_path}")
-            print(f"[hardware.launch] exists: {os.path.isfile(launch_path)}")
-            print(f"[hardware.launch] resolved args: {resolved}")
-
+            
+            # Check for missing package path before continuing setup
             if pkg_dir is None:
-                print(f"[hardware.launch] WARNING: '{pkg}' not found anywhere, skipping")
+                actions.append(LogInfo(msg=f"[hardware.launch] WARNING: '{pkg}' not found anywhere, skipping"))
                 continue
+
+            actions.append(LogInfo(msg=f"[hardware.launch] pkg_dir: {pkg_dir}"))
 
             launch_path = os.path.join(pkg_dir, 'launch', launch_file)
+            actions.append(LogInfo(msg=f"[hardware.launch] launch_path: {launch_path}"))
+            actions.append(LogInfo(msg=f"[hardware.launch] exists: {os.path.isfile(launch_path)}"))
+            actions.append(LogInfo(msg=f"[hardware.launch] resolved args: {resolved}"))
+
+            # Check for missing launch file path before execution mapping
             if not os.path.isfile(launch_path):
-                print(f"[hardware.launch] WARNING: launch file not found: {launch_path}, skipping")
+                actions.append(LogInfo(msg=f"[hardware.launch] WARNING: launch file not found: {launch_path}, skipping"))
                 continue
 
-            print(f"[hardware.launch] Launching: {launch_path} with args {resolved}")
+            actions.append(LogInfo(msg=f"[hardware.launch] Launching: {launch_path} with args {resolved}"))
+            
             actions.append(
                 IncludeLaunchDescription(
                     PythonLaunchDescriptionSource(launch_path),
                     launch_arguments=resolved.items()
                 )
             )
+
 
         pose = nav2.get('initial_pose', {})
         actions.append(
