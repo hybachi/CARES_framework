@@ -33,14 +33,13 @@ def generate_launch_description():
         ),
 
         # LDS-02 LiDAR
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(
-                os.path.join(lidar_pkg, 'launch', 'ld08.launch.py')
-            ),
-            launch_arguments={
-                'frame_id':  [robot_id, '/base_scan'],
-                'namespace': robot_id,
-            }.items()
+        Node(
+            package='ld08_driver',
+            executable='ld08_driver',
+            name='ld08_driver',
+            namespace=robot_id,
+            parameters=[{'frame_id': [robot_id, '/base_scan']}],
+            output='screen'
         ),
 
         # TurtleBot3 Node
