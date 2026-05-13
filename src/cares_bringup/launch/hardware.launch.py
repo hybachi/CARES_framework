@@ -15,6 +15,41 @@ def generate_launch_description():
         DeclareLaunchArgument('config_name', default_value='tb3_profile.yaml'),
     ]
 
+    def find_package_share(pkg_name):
+
+        # Search current environment
+        try:
+            return get_package_share_directory(pkg_name)
+        except Exception:
+            pass
+
+        # Search system ROS install paths
+        import subprocess
+        candidate = f'/opt/ros/humble/share/{pkg_name}'
+        if os.path.isdir(candidate):
+            return candidate
+
+        # Search AMENT_PREFIX_PATH
+        prefix_path = os.environ.get('AMENT_PREFIX_PATH', '')
+        for prefix in prefix_path.split(':'):
+            candidate = os.path.join(prefix, 'share', pkg_name)
+            if os.path.isdir(candidate):
+                return candidate
+
+        # Search system ros2 directly
+        try:
+            result = subprocess.run(
+                ['ros2', 'pkg', 'prefix', pkg_name],
+                capture_output=True, text=True, timeout=5
+            )
+            if result.returncode == 0:
+                prefix = result.stdout.strip()
+                return os.path.join(prefix, 'share', pkg_name)
+        except Exception:
+            pass
+
+        return None
+
     def launch_hardware(context, *args, **kwargs):
         robot_id = context.launch_configurations['robot_id']
         config_name = context.launch_configurations['config_name']
@@ -37,17 +72,20 @@ def generate_launch_description():
                 for k, v in raw_args.items()
             }
 
-            try:
-                pkg_dir = get_package_share_directory(pkg)
-            except Exception:
-                print(f"[hardware.launch] WARNING: package '{pkg}' not found, skipping driver")
+            pkg_dir = find_package_share(pkg)
+            if pkg_dir is None:
+                print(f"[hardware.launch] WARNING: '{pkg}' not found anywhere, skipping")
                 continue
 
+            launch_path = os.path.join(pkg_dir, 'launch', launch_file)
+            if not os.path.isfile(launch_path):
+                print(f"[hardware.launch] WARNING: launch file not found: {launch_path}, skipping")
+                continue
+
+            print(f"[hardware.launch] Launching: {launch_path} with args {resolved}")
             actions.append(
                 IncludeLaunchDescription(
-                    PythonLaunchDescriptionSource(
-                        os.path.join(pkg_dir, 'launch', launch_file)
-                    ),
+                    PythonLaunchDescriptionSource(launch_path),
                     launch_arguments=resolved.items()
                 )
             )
