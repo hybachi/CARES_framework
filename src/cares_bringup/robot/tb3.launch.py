@@ -17,7 +17,7 @@ def generate_launch_description():
 
     tb3_param  = os.path.join(tb3_bringup, 'param', 'humble', f'{TURTLEBOT3_MODEL}.yaml')
     urdf       = os.path.join(tb3_description, 'urdf', f'turtlebot3_{TURTLEBOT3_MODEL}.urdf')
-    robot_desc = Command(['xacro ', urdf, ' namespace:=', robot_id])
+    robot_desc = Command(['xacro ', urdf, ' namespace:=', robot_id, '/'])
 
     return LaunchDescription([
         DeclareLaunchArgument('robot_id', default_value='tb3_0'),
@@ -51,6 +51,7 @@ def generate_launch_description():
             parameters=[
                 tb3_param,
                 {
+                    'namespace': robot_id,  
                     'diff_drive_controller.odometry.frame_id':       [robot_id, '/odom'],
                     'diff_drive_controller.odometry.child_frame_id': [robot_id, '/base_footprint'],
                 }
