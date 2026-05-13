@@ -3,11 +3,11 @@ import yaml
 import tempfile
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction, SetEnvironmentVariable, GroupAction
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction
 from launch.conditions import LaunchConfigurationEquals
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
-from launch_ros.actions import Node, PushRosNamespace
+from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 from ament_index_python.packages import get_package_share_directory
 
@@ -59,10 +59,8 @@ def generate_launch_description():
         ),
     ]
 
-    # OpaqueFunction reads the profile and conditionally adds:
-    #   Hardware bringup (physical only)
     #   Nav2 stack (if nav2.enabled)
-    def launch_optional_stacks(context, *args, **kwargs):
+    def launch_nav2(context, *args, **kwargs):
         bringup_dir = get_package_share_directory('cares_bringup')
         cfg_name = context.launch_configurations.get('config_name', 'tb3_profile.yaml')
         cfg_path = os.path.join(bringup_dir, 'config', cfg_name)
@@ -73,31 +71,7 @@ def generate_launch_description():
         params = profile.get('/**', {}).get('ros__parameters', {})
 
         actions = []
-
-        # Hardware bringup
-        hw = params.get('hardware', {})
-        hw_pkg = hw.get('bringup_package', '')
-        hw_launch = hw.get('bringup_launch', '')
-        env_vars = hw.get('env_vars', {})
-
-        if hw_pkg and hw_launch:
-            hw_dir = get_package_share_directory(hw_pkg)
-
-            for key, value in env_vars.items():
-                actions.append(SetEnvironmentVariable(str(key), str(value)))
-
-            actions.append(
-                GroupAction([
-                    PushRosNamespace(robot_id_val),
-                    IncludeLaunchDescription(
-                        PythonLaunchDescriptionSource(
-                            os.path.join(hw_dir, 'launch', hw_launch)
-                        )
-                    )
-                ])
-            )
-
-        # Nav2 stack 
+ 
         nav2_cfg = params.get('nav2', {})
         if nav2_cfg.get('enabled', False):
             nav2_params_fn = nav2_cfg.get('params_file', 'nav2_params.yaml')
@@ -144,5 +118,5 @@ def generate_launch_description():
         return actions
 
     return LaunchDescription(
-        args + core_nodes + bridge_nodes + [OpaqueFunction(function=launch_optional_stacks)]
+        args + core_nodes + bridge_nodes + [OpaqueFunction(function=launch_nav2)]
     )

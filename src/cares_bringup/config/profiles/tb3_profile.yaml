@@ -24,10 +24,15 @@
       battery_failure: 0.5
 
     hardware:
-      bringup_package: "turtlebot3_bringup"
-      bringup_launch: "robot.launch.py"
-      env_vars:
-        TURTLEBOT3_MODEL: "burger"
+      drivers:
+        - package: "turtlebot3_bringup"
+          launch: "robot.launch.py" 
+          args:
+            namespace: "ROBOT_ID"
+
+      odom_frame:   "ROBOT_ID/odom"
+      base_frame:   "ROBOT_ID/base_footprint"
+      scan_frame:   "ROBOT_ID/base_scan"
     
     nav2:
       enabled: false
