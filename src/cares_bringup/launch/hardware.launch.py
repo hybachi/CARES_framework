@@ -53,7 +53,7 @@ def generate_launch_description():
     def launch_hardware(context, *args, **kwargs):
         robot_id = context.launch_configurations['robot_id']
         config_name = context.launch_configurations['config_name']
-        config_path = os.path.join(bringup_dir, 'config', config_name)
+        config_path = os.path.join(bringup_dir, 'config', 'profiles', config_name)
 
         with open(config_path, 'r') as f:
             profile = yaml.safe_load(f)
