@@ -63,7 +63,7 @@ def generate_launch_description():
     def launch_nav2(context, *args, **kwargs):
         bringup_dir = get_package_share_directory('cares_bringup')
         cfg_name = context.launch_configurations.get('config_name', 'tb3_profile.yaml')
-        cfg_path = os.path.join(bringup_dir, 'config', cfg_name)
+        cfg_path = os.path.join(bringup_dir, 'config', 'profiles', cfg_name)
         robot_id_val = context.launch_configurations.get('robot_id', 'tb3_0')
 
         with open(cfg_path, 'r') as f:

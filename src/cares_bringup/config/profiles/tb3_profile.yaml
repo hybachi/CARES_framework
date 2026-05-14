@@ -22,9 +22,9 @@
       battery_failure: 0.5
     
     nav2:
-      enabled: false
+      enabled: true
       use_sim_time: false
-      map_yaml: "/"
+      map_yaml: "room_map.yaml"
       params_file: "tb3_nav2_params.yaml"
       initial_pose:
         x: 0.0
