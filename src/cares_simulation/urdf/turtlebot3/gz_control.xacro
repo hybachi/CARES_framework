@@ -17,13 +17,13 @@
 
         <topic>/model/${model_name}/cmd_vel</topic>
 
-        <frame_id>odom</frame_id>
-        <child_frame_id>base_link</child_frame_id>
+        <frame_id>${model_name}/odom</frame_id>
+        <child_frame_id>${model_name}/base_footprint</child_frame_id>
 
         <odom_topic>/model/${model_name}/odom</odom_topic>
         <odom_publisher_frequency>30</odom_publisher_frequency>
 
-        <tf_topic>/tf</tf_topic>
+        <tf_topic>/model/${model_name}/tf</tf_topic>
       </plugin>
 
       <plugin

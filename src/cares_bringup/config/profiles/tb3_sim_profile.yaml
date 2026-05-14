@@ -1,0 +1,46 @@
+/**:
+  ros__parameters:
+    robot_type: "UGV_WHEELED"
+    model_name: "turtlebot3_burger"
+    
+    # supported_tasks: ["SEARCH", "NAVIGATE"]
+    
+    capabilities:
+      MOBILITY: 0.6
+      VISION: 0.0
+      NETWORK: 1.0
+      BATTERY: 1.0
+
+    thresholds:
+      MOBILITY: 0.3
+      VISION: 0.0
+      NETWORK: 0.4
+      BATTERY: 0.15
+
+    fault_impacts:
+      mobility_failure: 0.0
+      vision_failure: 0.1
+      network_failure: 0.0
+      battery_failure: 0.5
+    
+    nav2:
+      enabled: true
+      use_sim_time: true
+      map_yaml: "zones_map.yaml"
+      params_file: "tb3_nav2_params.yaml"
+      initial_pose:
+        x: 0.0
+        y: 0.0
+        yaw_degrees: 0.0
+
+    telemetry:
+      has_battery: false
+      drain_rate_idle: 0.0005
+      drain_rate_active: 0.002
+      
+      watchdogs:
+        topics: ["odom", "scan"]
+        types: ["nav_msgs.msg.Odometry", "sensor_msgs.msg.LaserScan"]
+        capabilities: ["MOBILITY", "VISION"]
+        reliability:  ["reliable", "best_effort"] 
+        timeouts: [2.0, 2.0]

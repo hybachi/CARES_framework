@@ -1,8 +1,6 @@
-import os
-from glob import glob
 from setuptools import find_packages, setup
 
-package_name = 'cares_core'
+package_name = 'cares_bridges'
 
 setup(
     name=package_name,
@@ -12,7 +10,6 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
-        (os.path.join('share', package_name, 'launch'), glob('launch/*.launch.py')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -20,16 +17,12 @@ setup(
     maintainer_email='hiba2anwar@gmail.com',
     description='TODO: Package description',
     license='TODO: License declaration',
-    extras_require={
-        'test': [
-            'pytest',
-        ],
-    },
+    tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'capability_manager = cares_core.capability_manager:main',
-            'task_allocator = cares_core.task_allocator:main',
-            'mission_spawner = cares_core.mission_spawner:main',
+            'telemetry_bridge = cares_bridges.telemetry_bridge:main',
+            'cmd_vel_bridge = cares_bridges.cmd_vel_bridge:main',
+            'nav2_bridge = cares_bridges.nav2_bridge:main'
         ],
     },
 )

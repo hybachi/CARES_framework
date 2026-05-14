@@ -2,27 +2,51 @@
 authors = ["Hiba Anwar <hiba2anwar@gmail.com>"]
 channels = ["https://prefix.dev/robostack-humble", "https://prefix.dev/conda-forge"]
 name = "cares_ws"
-platforms = ["linux-64"]
+platforms = ["linux-64", "linux-aarch64"]
 version = "0.1.0"
-
-[tasks]
-build = "colcon build"
-sim = "ros2 launch cares_simulation swarm_sim.launch.py"
-dash = "ros2 run cares_dashboard dashboard"
 
 [activation]
 scripts = ["install/setup.sh"]
 
+[activation.env]
+RMW_IMPLEMENTATION = "rmw_fastrtps_cpp"
+FASTRTPS_DEFAULT_PROFILES_FILE = "fastdds.xml"
+ROS_DOMAIN_ID = "42"
+
+# CORE SETUP
 [dependencies]
-ros-humble-desktop = ">=0.10.0,<0.11"
+ros-humble-ros-base = ">=0.10.0,<0.11"
 colcon-common-extensions = ">=0.3.0,<0.4"
 setuptools = "<=58.2.0"
 ros-humble-ament-cmake-auto = ">=1.3.12,<2"
 compilers = ">=1.11.0,<2"
 pkg-config = ">=0.29.2,<0.30"
 cmake = "<4"
+ros-humble-xacro = ">=2.0.13,<3"
+ros-humble-navigation2 = ">=1.1.18,<2"
+ros-humble-nav2-bringup = ">=1.1.18,<2"
+ros-humble-nav2-msgs = ">=1.1.18,<2"
+ros-humble-topic-tools = ">=1.1.1,<2"
+
+# PC ONLY (linux-64)
+[target.linux-64.dependencies]
+ros-humble-desktop = ">=0.10.0,<0.11" 
 ros-humble-ros-gz-sim = ">=0.244.20,<0.245"
 ros-humble-ros-ign-bridge = ">=0.244.20,<0.245"
 nicegui = ">=3.10.0,<4"
 plotly = ">=6.6.0,<7"
-ros-humble-xacro = ">=2.0.13,<3"
+
+[target.linux-64.tasks]
+sim = "ros2 launch cares_simulation swarm_sim.launch.py"
+rviz = "ros2 launch cares_bringup rviz.launch.py"
+dash = "ros2 run cares_dashboard dashboard"
+build = "colcon build"
+
+# ROBOT ONLY (linux-aarch64)
+# [target.linux-aarch64.dependencies]
+
+[target.linux-aarch64.tasks]
+build = "colcon build --packages-ignore cares_dashboard cares_simulation"
+tb3_hardware = "ros2 launch cares_bringup tb3.launch.py"
+tb3_brain = "ros2 launch cares_bringup robot.launch.py robot_id:=tb3_0 config_name:=tb3_profile.yaml"
+
