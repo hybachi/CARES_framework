@@ -14,7 +14,7 @@ from ament_index_python.packages import get_package_share_directory
 def generate_launch_description():
     robot_id = LaunchConfiguration('robot_id')
     config_name = LaunchConfiguration('config_name')
-    config_path = os.path.join(get_package_share_directory('cares_bringup'), 'config', 'maps', config_name)
+    config_path = PathJoinSubstitution([FindPackageShare('cares_bringup'),'config', 'profiles', config_name])
 
     args = [
         DeclareLaunchArgument('config_name', default_value='tb3_profile.yaml'),
