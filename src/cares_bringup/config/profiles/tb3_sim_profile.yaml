@@ -22,9 +22,6 @@
       vision_failure: 0.1
       network_failure: 0.0
       battery_failure: 0.5
-
-    hardware:
-      bringup_package: ""
     
     nav2:
       enabled: true

@@ -20,17 +20,6 @@
       vision_failure: 0.1
       network_failure: 0.0
       battery_failure: 0.5
-
-    hardware:
-      drivers:
-        - package: "turtlebot3_bringup"
-          launch: "robot.launch.py" 
-          args:
-            namespace: "ROBOT_ID"
-
-      odom_frame:   "ROBOT_ID/odom"
-      base_frame:   "ROBOT_ID/base_footprint"
-      scan_frame:   "ROBOT_ID/base_scan"
     
     nav2:
       enabled: false

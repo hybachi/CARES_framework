@@ -1,7 +1,6 @@
 import os
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
-from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration, Command
 from launch_ros.actions import Node
 from ament_index_python.packages import get_package_share_directory
@@ -9,7 +8,6 @@ from ament_index_python.packages import get_package_share_directory
 def generate_launch_description():
     tb3_bringup = get_package_share_directory('turtlebot3_bringup')
     tb3_description = get_package_share_directory('turtlebot3_description')
-    lidar_pkg = get_package_share_directory('ld08_driver')
 
     TURTLEBOT3_MODEL = os.environ.get('TURTLEBOT3_MODEL', 'burger')
 
@@ -51,7 +49,7 @@ def generate_launch_description():
                 tb3_param,
                 {
                     'namespace': robot_id,  
-                    'diff_drive_controller.odometry.frame_id':       [robot_id, '/odom'],
+                    'diff_drive_controller.odometry.frame_id': [robot_id, '/odom'],
                     'diff_drive_controller.odometry.child_frame_id': [robot_id, '/base_footprint'],
                 }
             ],
