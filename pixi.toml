@@ -1,7 +1,7 @@
 [workspace]
 authors = ["Hiba Anwar <hiba2anwar@gmail.com>"]
 channels = ["https://prefix.dev/robostack-humble", "https://prefix.dev/conda-forge"]
-name = "cares_ws"
+name = "chroma_ws"
 platforms = ["linux-64", "linux-aarch64"]
 version = "0.1.0"
 
@@ -37,16 +37,17 @@ nicegui = ">=3.10.0,<4"
 plotly = ">=6.6.0,<7"
 
 [target.linux-64.tasks]
-sim = "ros2 launch cares_simulation swarm_sim.launch.py"
-rviz = "ros2 launch cares_bringup rviz.launch.py"
-dash = "ros2 run cares_dashboard dashboard"
+sim = "ros2 launch chroma_simulation swarm_sim.launch.py"
+rviz = "ros2 launch chroma_bringup rviz.launch.py"
+dash = "ros2 run chroma_dashboard dashboard"
 build = "colcon build"
+purge = "pkill -9 -f 'ros2|robot_state_publisher|parameter_bridge|capability_manager|nav2_bridge|task_allocator|telemetry_bridge|jethexa|cares|gz sim' || true && ros2 daemon stop && ros2 daemon start"
 
 # ROBOT ONLY (linux-aarch64)
 # [target.linux-aarch64.dependencies]
 
 [target.linux-aarch64.tasks]
-build = "colcon build --packages-ignore cares_dashboard cares_simulation"
-tb3_hardware = "ros2 launch cares_bringup tb3.launch.py"
-tb3_brain = "ros2 launch cares_bringup robot.launch.py robot_id:=tb3_0 config_name:=tb3_profile.yaml"
+build = "colcon build --packages-ignore chroma_dashboard chroma_simulation"
+tb3_hardware = "ros2 launch chroma_bringup tb3.launch.py"
+tb3_brain = "ros2 launch chroma_bringup robot.launch.py robot_id:=tb3_0 config_name:=tb3_profile.yaml"
 
