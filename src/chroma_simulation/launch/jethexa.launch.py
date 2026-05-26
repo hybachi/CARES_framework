@@ -11,13 +11,21 @@ from launch_ros.parameter_descriptions import ParameterValue
 
 
 def generate_launch_description():
+<<<<<<< HEAD:src/chroma_simulation/launch/jethexa.launch.py
     pkg_dir = get_package_share_directory("chroma_simulation")
+=======
+    pkg_dir = get_package_share_directory("cares_simulation")
+>>>>>>> b0b80ff (jethexa urdf):src/cares_simulation/launch/jethexa.launch.py
     ros_gz_sim = get_package_share_directory("ros_gz_sim")
 
     robot_namespace = "jethexa"     # ROS 2 context
     model_name = "jethexa"          # Gazebo context
 
+<<<<<<< HEAD:src/chroma_simulation/launch/jethexa.launch.py
     world_file = os.path.join(pkg_dir, "worlds", "zones.sdf")
+=======
+    world_file = os.path.join(pkg_dir, "worlds", "empty_world.sdf")
+>>>>>>> b0b80ff (jethexa urdf):src/cares_simulation/launch/jethexa.launch.py
     xacro_file = os.path.join(pkg_dir, "urdf", "jethexa", "robot.urdf.xacro")
 
     # Gazebo resource path
