@@ -8,7 +8,7 @@
       <visual>
         <origin xyz="-0.032 0 0.0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://cares_simulation/models/turtlebot3_common/meshes/lds.dae"
+          <mesh filename="package://cares_simulation/models/turtlebot3/lds.dae"
                 scale="0.001 0.001 0.001"/>
         </geometry>
         <material name="dark"/>

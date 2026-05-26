@@ -21,7 +21,7 @@
       <visual>
         <origin xyz="-0.032 0 0.0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://cares_simulation/models/turtlebot3_common/meshes/burger_base.dae"
+          <mesh filename="package://cares_simulation/models/turtlebot3/burger_base.dae"
                 scale="0.001 0.001 0.001"/>
         </geometry>
         <material name="dark"/>
@@ -55,7 +55,7 @@
         <visual>
           <origin xyz="0 0 0" rpy="${M_PI/2} 0 0"/>
           <geometry>
-            <mesh filename="package://cares_simulation/models/turtlebot3_common/meshes/tire.dae"
+            <mesh filename="package://cares_simulation/models/turtlebot3/tire.dae"
                   scale="0.001 0.001 0.001"/>
           </geometry>
           <material name="dark"/>

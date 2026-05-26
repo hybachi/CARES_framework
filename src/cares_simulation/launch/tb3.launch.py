@@ -20,7 +20,7 @@ def generate_launch_description():
 
     # Paths
     world_file = os.path.join(pkg_dir, "worlds", "empty_world.sdf")
-    xacro_file = os.path.join(pkg_dir, "urdf", "turtlebot3_burger", "robot.urdf.xacro")
+    xacro_file = os.path.join(pkg_dir, "urdf", "turtlebot3", "turtlebot3_burger", "robot.urdf.xacro")
 
     # Gazebo resource path
     set_env = AppendEnvironmentVariable(
