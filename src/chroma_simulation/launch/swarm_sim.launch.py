@@ -34,12 +34,43 @@ def generate_launch_description():
     def spawn_robot(robot_namespace, model_name, x, y, z, yaw,
                     xacro_file, config_name,
                     execution_interface, telemetry_interface,
-                    initial_pose):
+                    initial_pose, params):
 
         robot_description = Command([
             "xacro ", xacro_file,
             " model_name:=", model_name,
         ])
+
+        # --- UNIVERSAL BASE TOPICS ---
+        bridge_args = [
+            "/clock@rosgraph_msgs/msg/Clock[ignition.msgs.Clock",
+            f"/model/{model_name}/odom@nav_msgs/msg/Odometry[ignition.msgs.Odometry",
+            f"/model/{model_name}/scan@sensor_msgs/msg/LaserScan[ignition.msgs.LaserScan",
+            f"/model/{model_name}/imu@sensor_msgs/msg/Imu[ignition.msgs.IMU",
+            f"/model/{model_name}/joint_states@sensor_msgs/msg/JointState[ignition.msgs.Model",
+            f"/model/{model_name}/tf@tf2_msgs/msg/TFMessage[ignition.msgs.Pose_V",
+        ]
+        
+        bridge_remaps = [
+            "--ros-args",
+            "-r", "/clock:=/clock",
+            "-r", f"/model/{model_name}/odom:=odom",
+            "-r", f"/model/{model_name}/scan:=scan",
+            "-r", f"/model/{model_name}/imu:=imu",
+            "-r", f"/model/{model_name}/joint_states:=joint_states",
+            "-r", f"/model/{model_name}/tf:=tf",
+            "-p", f"qos_overrides./{robot_namespace}/scan.publisher.reliability:=best_effort",
+            "-p", f"qos_overrides./{robot_namespace}/scan.publisher.durability:=volatile",
+            "-p", f"qos_overrides./{robot_namespace}/imu.publisher.reliability:=best_effort",
+            "-p", f"qos_overrides./{robot_namespace}/imu.publisher.durability:=volatile",
+        ]
+
+        # --- INJECT CUSTOM BRIDGES FROM YAML ---
+        for b in params.get('custom_bridges', []):
+            bridge_args.append(b.format(name=model_name))
+
+        for r in params.get('custom_remaps', []):
+            bridge_remaps.extend(["-r", r.format(name=model_name)])
 
         gazebo_bridge = Node(
             package="ros_ign_bridge",
@@ -47,28 +78,7 @@ def generate_launch_description():
             namespace=robot_namespace,
             parameters=[{'use_sim_time': True}],
             output="screen",
-            arguments=[
-                    "/clock@rosgraph_msgs/msg/Clock[ignition.msgs.Clock",
-                    f"/model/{model_name}/cmd_vel@geometry_msgs/msg/Twist]ignition.msgs.Twist",
-                    f"/model/{model_name}/odom@nav_msgs/msg/Odometry[ignition.msgs.Odometry",
-                    f"/model/{model_name}/scan@sensor_msgs/msg/LaserScan[ignition.msgs.LaserScan",
-                    f"/model/{model_name}/imu@sensor_msgs/msg/Imu[ignition.msgs.IMU",
-                    f"/model/{model_name}/joint_states@sensor_msgs/msg/JointState[ignition.msgs.Model",
-                    f"/model/{model_name}/tf@tf2_msgs/msg/TFMessage[ignition.msgs.Pose_V",
-                    "--ros-args",
-                    "-r", "/clock:=/clock",
-                    "-r", f"/model/{model_name}/cmd_vel:=cmd_vel",
-                    "-r", f"/model/{model_name}/odom:=odom",
-                    "-r", f"/model/{model_name}/scan:=scan",
-                    "-r", f"/model/{model_name}/imu:=imu",
-                    "-r", f"/model/{model_name}/joint_states:=joint_states",
-                    "-r", f"/model/{model_name}/tf:=tf",
-                    # QoS overrides
-                    "-p", f"qos_overrides./{robot_namespace}/scan.publisher.reliability:=best_effort",
-                    "-p", f"qos_overrides./{robot_namespace}/scan.publisher.durability:=volatile",
-                    "-p", f"qos_overrides./{robot_namespace}/imu.publisher.reliability:=best_effort",
-                    "-p", f"qos_overrides./{robot_namespace}/imu.publisher.durability:=volatile",
-                ],
+            arguments=bridge_args + bridge_remaps,
         )
 
         robot_state_publisher = Node(
@@ -113,7 +123,18 @@ def generate_launch_description():
             }.items()
         )
 
-        return [gazebo_bridge, robot_state_publisher, spawn, chroma_brain]
+        robot_nodes = [gazebo_bridge, robot_state_publisher, spawn, chroma_brain]
+
+        # --- INJECT EXTRA NODES FROM YAML (e.g. Gait Controller) ---
+        for node_info in params.get('extra_nodes', []):
+            robot_nodes.append(Node(
+                package=node_info['package'],
+                executable=node_info['executable'],
+                namespace=robot_namespace,
+                output="screen"
+            ))
+
+        return robot_nodes
 
     with open(swarm_config_path, 'r') as f:
         swarm_data = yaml.safe_load(f)
@@ -125,13 +146,14 @@ def generate_launch_description():
             model_name = robot_id,
             x = str(params.get('x', 0.0)),
             y = str(params.get('y', 0.0)),
-            z = str(params.get('z', 0.01)),
+            z = str(params.get('z', 0.01)), # Driven cleanly by YAML now
             yaw = str(params.get('yaw', 0.0)),
             xacro_file = os.path.join(chroma_sim_dir, "urdf", params['urdf']),
             config_name = params['config'],
             execution_interface = params.get('execution_interface',  'nav2'),
             telemetry_interface = params.get('telemetry_interface',  'standard'),
             initial_pose = params.get('initial_pose', {}),
+            params = params # Pass the full dictionary to access custom properties
         )
         spawn_actions.extend(robot_nodes)
 

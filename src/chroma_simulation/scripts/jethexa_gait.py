@@ -10,14 +10,14 @@ class JethexaGaitController(Node):
     def __init__(self):
         super().__init__('jethexa_gait_controller')
 
-        self.subscription = self.create_subscription(Twist, '/cmd_vel', self.cmd_vel_callback, 10)
+        self.subscription = self.create_subscription(Twist, 'cmd_vel', self.cmd_vel_callback, 10)
 
         self.legs = ['LF', 'LM', 'LR', 'RF', 'RM', 'RR']
         self.pubs = {}
         for leg in self.legs:
             for joint in ['coxa', 'femur', 'tibia']:
                 joint_name = f"{joint}_joint_{leg}"
-                self.pubs[joint_name] = self.create_publisher(Float64, f"/jethexa/joint/{joint_name}/cmd_pos", 10)
+                self.pubs[joint_name] = self.create_publisher(Float64, f"joint/{joint_name}/cmd_pos", 10)
 
         self.timer = self.create_timer(0.02, self.control_loop) 
 

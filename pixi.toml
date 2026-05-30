@@ -41,6 +41,7 @@ sim = "ros2 launch chroma_simulation swarm_sim.launch.py"
 rviz = "ros2 launch chroma_bringup rviz.launch.py"
 dash = "ros2 run chroma_dashboard dashboard"
 build = "colcon build"
+purge = "pkill -9 -f 'ros2|robot_state_publisher|parameter_bridge|capability_manager|nav2_bridge|task_allocator|telemetry_bridge|jethexa|cares|gz sim' || true && ros2 daemon stop && ros2 daemon start"
 
 # ROBOT ONLY (linux-aarch64)
 # [target.linux-aarch64.dependencies]
