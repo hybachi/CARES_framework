@@ -1,0 +1,134 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:macro name="jethexa_sensors" params="model_name">
+    <xacro:property name="my_pi" value="3.1415926535897931"/>
+
+    <!-- LiDAR -->
+    <joint name="lidar_joint" type="fixed">
+      <parent link="body_link"/>
+      <child link="lidar_visual_link"/>
+      <origin xyz="-0.023 0.0 0.1" rpy="0.0 0.0 0.0"/>
+    </joint>
+
+    <link name="lidar_visual_link">
+      <visual>
+        <origin xyz="0.0 0.0 -0.033" rpy="0.0 0.0 1.571" />
+        <geometry><mesh filename="package://chroma_simulation/models/jethexa/g4.stl" scale="1.0 1.0 1.0"/></geometry>
+        <material name=""><color rgba="0.2 0.2 0.2 1" /></material>
+      </visual>
+      
+      <collision>
+        <origin xyz="0.0 0.0 -0.015" rpy="0.0 0.0 0.0" />
+        <geometry>
+          <cylinder radius="0.035" length="0.025"/>
+        </geometry>
+      </collision>
+
+      <inertial>
+        <mass value="0.1"/>
+        <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001" />
+      </inertial>
+    </link>
+
+    <gazebo reference="lidar_visual_link">
+      <sensor name="lidar" type="gpu_lidar">
+        <pose>0 0 0 0 0 0</pose>
+        <always_on>1</always_on>
+        <visualize>true</visualize>
+        <update_rate>10</update_rate>
+        <lidar>
+          <scan>
+            <horizontal>
+              <samples>360</samples>
+              <min_angle>-3.14159</min_angle>
+              <max_angle>3.14159</max_angle>
+            </horizontal>
+          </scan>
+          <range>
+            <min>0.12</min>
+            <max>10.0</max>
+          </range>
+        </lidar>
+        <topic>/model/${model_name}/scan</topic>
+        <gz_frame_id>lidar_visual_link</gz_frame_id>
+      </sensor>
+    </gazebo>
+
+    <!-- IMU -->
+    <joint name="imu_joint" type="fixed">
+      <parent link="body_link"/>
+      <child link="imu_link"/>
+      <origin xyz="0.0 0.0 0.04" rpy="0.0 0.0 0.0"/>
+    </joint>
+    <link name="imu_link">
+      <inertial><mass value="0.01"/><inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" /></inertial>
+    </link>
+
+    <gazebo reference="imu_link">
+      <sensor name="imu_sensor" type="imu">
+        <always_on>1</always_on>
+        <update_rate>200</update_rate>
+        <topic>/model/${model_name}/imu</topic>
+        <gz_frame_id>imu_link</gz_frame_id>
+      </sensor>
+    </gazebo>
+
+    <!-- Depth Camera -->
+    <joint name="depth_camera_joint" type="fixed">
+      <parent link="body_link"/> 
+      <child link="depth_camera_link"/>
+      <origin xyz="0.062455 0.0 0.07" rpy="0.0 0.0 0.0"/>
+    </joint>
+    <link name="depth_camera_link">
+      <visual>
+        <origin xyz="0.0 0.0 -0.015" rpy="0.0 0.0 ${my_pi/2}" />
+        <geometry><mesh filename="package://chroma_simulation/models/jethexa/dabai.stl" scale="1.0 1.0 1.0"/></geometry>
+        <material name=""><color rgba="0.8 0.8 0.8 1" /></material>
+      </visual>
+
+      <collision>
+        <origin xyz="0.0 0.0 -0.01" rpy="0.0 0.0 0.0" />
+        <geometry>
+          <box size="0.02 0.08 0.02"/>
+        </geometry>
+      </collision>
+
+      <inertial>
+        <mass value="0.05"/>
+        <inertia ixx="0.00005" ixy="0.0" ixz="0.0" iyy="0.00005" iyz="0.0" izz="0.00005" />
+      </inertial>
+    </link>
+
+    <!-- Optical frames -->
+    <link name="camera_depth_optical_frame"/>
+    <joint name="camera_optical_joint" type="fixed">
+      <origin xyz="0 0 0" rpy="-${my_pi/2} 0 -${my_pi/2}"/>
+      <parent link="depth_camera_link"/>
+      <child link="camera_depth_optical_frame"/>
+    </joint>
+
+    <link name="camera_color_optical_frame"/>
+    <joint name="camera_color_optical_joint" type="fixed">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <parent link="camera_depth_optical_frame"/>
+      <child link="camera_color_optical_frame"/>
+    </joint>
+
+    <gazebo reference="depth_camera_link">
+      <sensor name="depth_camera" type="rgbd_camera">
+        <always_on>true</always_on>
+        <update_rate>30</update_rate>
+        <camera name="rgbd_camera">
+          <horizontal_fov>1.0472</horizontal_fov>
+          <image><width>640</width><height>480</height></image>
+          <clip><near>0.1</near><far>10</far></clip>
+        </camera>
+        <topic>/model/${model_name}/camera</topic>
+        <gz_frame_id>camera_color_optical_frame</gz_frame_id>
+      </sensor>
+    </gazebo>
+
+  </xacro:macro>
+
+</robot>

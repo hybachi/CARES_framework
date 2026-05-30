@@ -1,11 +1,11 @@
-# CARES Framework
+# CHROMA Framework
 
 ![alt text](https://img.shields.io/badge/ROS_2-Humble-22314E?style=flat&logo=ros)
 ![alt text](https://img.shields.io/badge/Status-Active_Development-success)
 
-**Capability-Aware Resilient Emergency Swarms (CARES)** is a thesis project focused on the design and implementation of a capability-aware, decentralized, and resilient heterogeneous swarm framework for **Urban Search and Rescue (USAR)** scenarios.
+**Capability-aware Heterogeneous Robot Operations and Mission Allocation (CHROMA)** is a thesis project focused on the design and implementation of a capability-aware, decentralized, and resilient heterogeneous swarm framework for **Urban Search and Rescue (USAR)** scenarios.
 
-In high-stakes USAR missions, robots frequently face environmental hazards, structural occlusions, battery drain, and hardware failures. Traditional multi-robot systems rely on static assumptions about what a robot can do. CARES introduces a **Dynamic Capability Model**, enabling heterogeneous robots (wheeled, legged, aerial) to continuously evaluate and broadcast their real-time operational health. This allows the swarm to autonomously coordinate, adapt to partial failures, and reallocate tasks on the fly without relying on a centralized controller.
+In high-stakes USAR missions, robots frequently face environmental hazards, structural occlusions, battery drain, and hardware failures. Traditional multi-robot systems rely on static assumptions about what a robot can do. CHROMA introduces a **Dynamic Capability Model**, enabling heterogeneous robots (wheeled, legged, aerial) to continuously evaluate and broadcast their real-time operational health. This allows the swarm to autonomously coordinate, adapt to partial failures, and reallocate tasks on the fly without relying on a centralized controller.
 
 ## Tech Stack & Hardware
 
@@ -66,13 +66,13 @@ ros2 launch ...
 
 ## Configuration
 
-Swarm compositions and robot capabilities are defined entirely via YAML files located in the `cares_bringup/config/` directory.
+Swarm compositions and robot capabilities are defined entirely via YAML files located in the `chroma_bringup/config/` directory.
 
 ### Robot Profiles
 
 A **Robot Profile** defines the genetic makeup of a robot type (e.g., a TurtleBot3 or a JetHexa). It defines base capabilities and operational thresholds (to be extended later).
 
-Example: `cares_bringup/config/tb3_profile.yaml`
+Example: `chroma_bringup/config/tb3_profile.yaml`
 
 ```yaml
 /**:
@@ -97,7 +97,7 @@ Example: `cares_bringup/config/tb3_profile.yaml`
 
 ### Swarm Configuration
 
-The `swarm_config.yaml` file located in `cares_simulation/config/` directory is used to generate the simulation fleet. Edit this file to add or remove robots from the simulation.
+The `swarm_config.yaml` file located in `chroma_simulation/config/` directory is used to generate the simulation fleet. Edit this file to add or remove robots from the simulation.
 
 Example: 
 
@@ -126,7 +126,7 @@ swarm:
 
 ```
 
-> **Note**: The launch file will search for config files in `cares_bringup/config/` and urdf files inside `cares_simulation/urdf/`.
+> **Note**: The launch file will search for config files in `chroma_bringup/config/` and urdf files inside `chroma_simulation/urdf/`.
 
 ## Running the Simulation
 

@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- A helper macro to create an Ignition Position Controller for an articulated joint -->
+  <xacro:macro name="ign_joint_controller" params="joint_name model_name">
+    <plugin
+      filename="libignition-gazebo-joint-position-controller-system.so"
+      name="ignition::gazebo::systems::JointPositionController">
+      <joint_name>${joint_name}</joint_name>
+      <topic>/model/${model_name}/joint/${joint_name}/cmd_pos</topic>
+      <p_gain>50.0</p_gain>
+      <i_gain>0.0</i_gain>
+      <d_gain>0.2</d_gain>
+      <i_max>0.0</i_max>
+      <i_min>-0.0</i_min>
+      <cmd_max>6.0</cmd_max>
+      <cmd_min>-6.0</cmd_min>
+    </plugin>
+  </xacro:macro>
+
+  <xacro:macro name="jethexa_gz_control" params="model_name">
+    <gazebo>
+      <!-- Joint State Publisher for ALL joints -->
+      <plugin
+        filename="libignition-gazebo-joint-state-publisher-system.so"
+        name="ignition::gazebo::systems::JointStatePublisher">
+        <topic>/model/${model_name}/joint_states</topic>
+      </plugin>
+
+      <!-- Head Controllers -->
+      <xacro:ign_joint_controller joint_name="head_pan_joint" model_name="${model_name}"/>
+      <xacro:ign_joint_controller joint_name="head_tilt_joint" model_name="${model_name}"/>
+
+      <!-- Left Front Leg Controllers -->
+      <xacro:ign_joint_controller joint_name="coxa_joint_LF" model_name="${model_name}"/>
+      <xacro:ign_joint_controller joint_name="femur_joint_LF" model_name="${model_name}"/>
+      <xacro:ign_joint_controller joint_name="tibia_joint_LF" model_name="${model_name}"/>
+
+      <!-- Left Mid Leg Controllers -->
+      <xacro:ign_joint_controller joint_name="coxa_joint_LM" model_name="${model_name}"/>
+      <xacro:ign_joint_controller joint_name="femur_joint_LM" model_name="${model_name}"/>
+      <xacro:ign_joint_controller joint_name="tibia_joint_LM" model_name="${model_name}"/>
+
+      <!-- Left Rear Leg Controllers -->
+      <xacro:ign_joint_controller joint_name="coxa_joint_LR" model_name="${model_name}"/>
+      <xacro:ign_joint_controller joint_name="femur_joint_LR" model_name="${model_name}"/>
+      <xacro:ign_joint_controller joint_name="tibia_joint_LR" model_name="${model_name}"/>
+
+      <!-- Right Front Leg Controllers -->
+      <xacro:ign_joint_controller joint_name="coxa_joint_RF" model_name="${model_name}"/>
+      <xacro:ign_joint_controller joint_name="femur_joint_RF" model_name="${model_name}"/>
+      <xacro:ign_joint_controller joint_name="tibia_joint_RF" model_name="${model_name}"/>
+
+      <!-- Right Mid Leg Controllers -->
+      <xacro:ign_joint_controller joint_name="coxa_joint_RM" model_name="${model_name}"/>
+      <xacro:ign_joint_controller joint_name="femur_joint_RM" model_name="${model_name}"/>
+      <xacro:ign_joint_controller joint_name="tibia_joint_RM" model_name="${model_name}"/>
+
+      <!-- Right Rear Leg Controllers -->
+      <xacro:ign_joint_controller joint_name="coxa_joint_RR" model_name="${model_name}"/>
+      <xacro:ign_joint_controller joint_name="femur_joint_RR" model_name="${model_name}"/>
+      <xacro:ign_joint_controller joint_name="tibia_joint_RR" model_name="${model_name}"/>
+    </gazebo>
+  </xacro:macro>
+
+</robot>
