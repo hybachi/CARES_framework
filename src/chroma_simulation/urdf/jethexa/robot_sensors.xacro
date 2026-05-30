@@ -52,10 +52,14 @@
         </lidar>
         <topic>/model/${model_name}/scan</topic>
 <<<<<<< HEAD
+<<<<<<< HEAD
         <gz_frame_id>${model_name}/lidar_visual_link</gz_frame_id>
 =======
         <gz_frame_id>lidar_visual_link</gz_frame_id>
 >>>>>>> d06e372 (implement jethexa controller)
+=======
+        <gz_frame_id>${model_name}/lidar_visual_link</gz_frame_id>
+>>>>>>> 714e12a (jethexa nav2)
       </sensor>
     </gazebo>
 
@@ -75,10 +79,14 @@
         <update_rate>200</update_rate>
         <topic>/model/${model_name}/imu</topic>
 <<<<<<< HEAD
+<<<<<<< HEAD
         <gz_frame_id>${model_name}/imu_link</gz_frame_id>
 =======
         <gz_frame_id>imu_link</gz_frame_id>
 >>>>>>> d06e372 (implement jethexa controller)
+=======
+        <gz_frame_id>${model_name}/imu_link</gz_frame_id>
+>>>>>>> 714e12a (jethexa nav2)
       </sensor>
     </gazebo>
 
@@ -134,10 +142,14 @@
         </camera>
         <topic>/model/${model_name}/camera</topic>
 <<<<<<< HEAD
+<<<<<<< HEAD
         <gz_frame_id>${model_name}/camera_color_optical_frame</gz_frame_id>
 =======
         <gz_frame_id>camera_color_optical_frame</gz_frame_id>
 >>>>>>> d06e372 (implement jethexa controller)
+=======
+        <gz_frame_id>${model_name}/camera_color_optical_frame</gz_frame_id>
+>>>>>>> 714e12a (jethexa nav2)
       </sensor>
     </gazebo>
 
