@@ -8,11 +8,15 @@
       <visual>
         <origin xyz="-0.032 0 0.0" rpy="0 0 0"/>
         <geometry>
+<<<<<<< HEAD
 <<<<<<< HEAD:src/chroma_simulation/urdf/turtlebot3/robot_sensors.xacro
           <mesh filename="package://chroma_simulation/models/turtlebot3/lds.dae"
 =======
           <mesh filename="package://cares_simulation/models/turtlebot3/lds.dae"
 >>>>>>> b0b80ff (jethexa urdf):src/cares_simulation/urdf/turtlebot3/robot_sensors.xacro
+=======
+          <mesh filename="package://chroma_simulation/models/turtlebot3/lds.dae"
+>>>>>>> d06e372 (implement jethexa controller)
                 scale="0.001 0.001 0.001"/>
         </geometry>
         <material name="dark"/>
