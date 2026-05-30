@@ -2,9 +2,12 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   <!-- A helper macro to create an Ignition Position Controller for an articulated joint -->
 >>>>>>> d06e372 (implement jethexa controller)
+=======
+>>>>>>> 561314f (jethexa launch)
   <xacro:macro name="ign_joint_controller" params="joint_name model_name">
     <plugin
       filename="libignition-gazebo-joint-position-controller-system.so"
@@ -24,10 +27,14 @@
   <xacro:macro name="jethexa_gz_control" params="model_name">
     <gazebo>
 <<<<<<< HEAD
+<<<<<<< HEAD
       <!-- Joint State Publisher -->
 =======
       <!-- Joint State Publisher for ALL joints -->
 >>>>>>> d06e372 (implement jethexa controller)
+=======
+      <!-- Joint State Publisher -->
+>>>>>>> 561314f (jethexa launch)
       <plugin
         filename="libignition-gazebo-joint-state-publisher-system.so"
         name="ignition::gazebo::systems::JointStatePublisher">
@@ -35,6 +42,9 @@
       </plugin>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 561314f (jethexa launch)
       <!-- ODOMETRY & TF PUBLISHER -->
       <plugin
         filename="libignition-gazebo-odometry-publisher-system.so"
@@ -48,8 +58,11 @@
         <dimensions>2</dimensions>
       </plugin>
 
+<<<<<<< HEAD
 =======
 >>>>>>> d06e372 (implement jethexa controller)
+=======
+>>>>>>> 561314f (jethexa launch)
       <!-- Head Controllers -->
       <xacro:ign_joint_controller joint_name="head_pan_joint" model_name="${model_name}"/>
       <xacro:ign_joint_controller joint_name="head_tilt_joint" model_name="${model_name}"/>
