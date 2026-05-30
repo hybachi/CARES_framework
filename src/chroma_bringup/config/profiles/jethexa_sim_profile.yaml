@@ -24,10 +24,10 @@
       battery_failure: 0.5
     
     nav2:
-      enabled: false
+      enabled: true
       use_sim_time: true
       map_yaml: "zones_map.yaml"
-      params_file: "tb3_nav2_params.yaml"
+      params_file: "nav2_jethexa.yaml"
       initial_pose:
         x: 0.0
         y: 0.0

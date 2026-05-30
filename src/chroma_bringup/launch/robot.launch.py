@@ -1,5 +1,6 @@
 import os
 import yaml
+import copy
 import tempfile
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
@@ -71,12 +72,47 @@ def generate_launch_description():
         params = profile.get('/**', {}).get('ros__parameters', {})
 
         actions = []
+
+        def deep_merge(base, override):
+            for key, value in override.items():
+                if isinstance(value, dict) and key in base:
+                    deep_merge(base[key], value)
+                else:
+                    base[key] = copy.deepcopy(value)
+            return base
  
         nav2_cfg = params.get('nav2', {})
         if nav2_cfg.get('enabled', False):
-            nav2_params_fn = nav2_cfg.get('params_file', 'nav2_params.yaml')
-            nav2_params_fp = os.path.join(bringup_dir, 'config', 'nav2', nav2_params_fn)
+            base_params_fp = os.path.join(bringup_dir, 'config', 'nav2', 'nav2_base.yaml')
+            override_params_fn = nav2_cfg.get('params_file', 'nav2_params.yaml')
+            override_params_fp = os.path.join(bringup_dir, 'config', 'nav2', override_params_fn)
+            
             use_sim_time = str(nav2_cfg.get('use_sim_time', False)).lower()
+
+            with open(base_params_fp, 'r') as f_base, open(override_params_fp, 'r') as f_over:
+                base_data = yaml.safe_load(f_base)
+                override_data = yaml.safe_load(f_over)
+
+            merged_nav2_data = deep_merge(base_data, override_data)
+
+            pose_cfg = nav2_cfg.get('initial_pose', {})
+
+            init_x = float(context.launch_configurations.get('initial_x') or pose_cfg.get('x', 0.0))
+            init_y = float(context.launch_configurations.get('initial_y') or pose_cfg.get('y', 0.0))
+            init_yaw = float(context.launch_configurations.get('initial_yaw') or pose_cfg.get('yaw_degrees', 0.0))
+
+            if 'amcl' in merged_nav2_data and 'ros__parameters' in merged_nav2_data['amcl']:
+                merged_nav2_data['amcl']['ros__parameters']['set_initial_pose'] = True
+                if 'initial_pose' not in merged_nav2_data['amcl']['ros__parameters']:
+                    merged_nav2_data['amcl']['ros__parameters']['initial_pose'] = {}
+                merged_nav2_data['amcl']['ros__parameters']['initial_pose']['x'] = init_x
+                merged_nav2_data['amcl']['ros__parameters']['initial_pose']['y'] = init_y
+                merged_nav2_data['amcl']['ros__parameters']['initial_pose']['yaw'] = init_yaw
+
+            tmp_nav2 = tempfile.NamedTemporaryFile(mode='w', suffix='_nav2_merged.yaml', delete=False)
+            yaml.dump(merged_nav2_data, tmp_nav2)
+            tmp_nav2.close()
+            final_nav2_params_fp = tmp_nav2.name
 
             map_name  = nav2_cfg.get('map_yaml', 'empty_map.yaml') 
             maps_dir  = os.path.join(get_package_share_directory('chroma_bringup'), 'config', 'maps')
@@ -92,12 +128,6 @@ def generate_launch_description():
             tmp.close()
             map_yaml = tmp.name
 
-            pose_cfg = nav2_cfg.get('initial_pose', {})
-            # CLI overrides win over profile defaults
-            x = context.launch_configurations.get('initial_x') or str(pose_cfg.get('x', 0.0))
-            y = context.launch_configurations.get('initial_y') or str(pose_cfg.get('y', 0.0))
-            yaw = context.launch_configurations.get('initial_yaw') or str(pose_cfg.get('yaw_degrees', 0.0))
-
             actions.append(
                 IncludeLaunchDescription(
                     PythonLaunchDescriptionSource(
@@ -106,11 +136,11 @@ def generate_launch_description():
                     launch_arguments={
                         'robot_id': robot_id_val,
                         'map_yaml': map_yaml,
-                        'nav2_params': nav2_params_fp,
+                        'nav2_params': final_nav2_params_fp,
                         'use_sim_time': use_sim_time,
-                        'initial_x': x,
-                        'initial_y': y,
-                        'initial_yaw': yaw,
+                        'initial_x': str(init_x),
+                        'initial_y': str(init_y),
+                        'initial_yaw': str(init_yaw),
                     }.items()
                 )
             )

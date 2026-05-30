@@ -51,7 +51,7 @@
           </range>
         </lidar>
         <topic>/model/${model_name}/scan</topic>
-        <gz_frame_id>lidar_visual_link</gz_frame_id>
+        <gz_frame_id>${model_name}/lidar_visual_link</gz_frame_id>
       </sensor>
     </gazebo>
 
@@ -70,7 +70,7 @@
         <always_on>1</always_on>
         <update_rate>200</update_rate>
         <topic>/model/${model_name}/imu</topic>
-        <gz_frame_id>imu_link</gz_frame_id>
+        <gz_frame_id>${model_name}/imu_link</gz_frame_id>
       </sensor>
     </gazebo>
 
@@ -125,7 +125,7 @@
           <clip><near>0.1</near><far>10</far></clip>
         </camera>
         <topic>/model/${model_name}/camera</topic>
-        <gz_frame_id>camera_color_optical_frame</gz_frame_id>
+        <gz_frame_id>${model_name}/camera_color_optical_frame</gz_frame_id>
       </sensor>
     </gazebo>
 

@@ -117,15 +117,14 @@ def generate_launch_description():
                 'robot_id': robot_namespace,
                 'execution_interface': execution_interface,
                 'telemetry_interface': telemetry_interface,
-                'initial_x': str(initial_pose.get('x', 0.0)),
-                'initial_y': str(initial_pose.get('y', 0.0)),
-                'initial_yaw': str(initial_pose.get('yaw_degrees', 0.0)),
+                'initial_x': x,
+                'initial_y': y,
+                'initial_yaw': yaw,
             }.items()
         )
 
         robot_nodes = [gazebo_bridge, robot_state_publisher, spawn, chroma_brain]
 
-        # --- INJECT EXTRA NODES FROM YAML (e.g. Gait Controller) ---
         for node_info in params.get('extra_nodes', []):
             robot_nodes.append(Node(
                 package=node_info['package'],
@@ -146,14 +145,14 @@ def generate_launch_description():
             model_name = robot_id,
             x = str(params.get('x', 0.0)),
             y = str(params.get('y', 0.0)),
-            z = str(params.get('z', 0.01)), # Driven cleanly by YAML now
+            z = str(params.get('z', 0.01)),
             yaw = str(params.get('yaw', 0.0)),
             xacro_file = os.path.join(chroma_sim_dir, "urdf", params['urdf']),
             config_name = params['config'],
             execution_interface = params.get('execution_interface',  'nav2'),
             telemetry_interface = params.get('telemetry_interface',  'standard'),
             initial_pose = params.get('initial_pose', {}),
-            params = params # Pass the full dictionary to access custom properties
+            params = params 
         )
         spawn_actions.extend(robot_nodes)
 
