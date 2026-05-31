@@ -25,7 +25,7 @@
       battery_penalty: 0.6
 
     nav2:
-      enabled: true
+      enabled: false
       use_sim_time: true
       map_yaml: 'usar_map.yaml'
       params_file: 'nav2_jethexa.yaml'
