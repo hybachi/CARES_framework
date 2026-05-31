@@ -13,7 +13,7 @@ def generate_launch_description():
     chroma_bringup_dir = get_package_share_directory("chroma_bringup")
     ros_gz_sim = get_package_share_directory("ros_gz_sim")
 
-    world_file = os.path.join(chroma_sim_dir, "worlds", "zones.sdf")
+    world_file = os.path.join(chroma_sim_dir, "worlds", "new_zones.sdf")
     swarm_config_path = os.path.join(chroma_sim_dir, "config", "swarm_config.yaml")
 
     set_env = AppendEnvironmentVariable(
@@ -43,7 +43,6 @@ def generate_launch_description():
 
         # --- UNIVERSAL BASE TOPICS ---
         bridge_args = [
-            "/clock@rosgraph_msgs/msg/Clock[ignition.msgs.Clock",
             f"/model/{model_name}/odom@nav_msgs/msg/Odometry[ignition.msgs.Odometry",
             f"/model/{model_name}/scan@sensor_msgs/msg/LaserScan[ignition.msgs.LaserScan",
             f"/model/{model_name}/imu@sensor_msgs/msg/Imu[ignition.msgs.IMU",
@@ -53,7 +52,6 @@ def generate_launch_description():
         
         bridge_remaps = [
             "--ros-args",
-            "-r", "/clock:=/clock",
             "-r", f"/model/{model_name}/odom:=odom",
             "-r", f"/model/{model_name}/scan:=scan",
             "-r", f"/model/{model_name}/imu:=imu",
@@ -155,8 +153,19 @@ def generate_launch_description():
             params = params 
         )
         spawn_actions.extend(robot_nodes)
+    
+    global_clock = Node(
+        package="ros_ign_bridge",
+        executable="parameter_bridge",
+        name="global_clock_bridge",
+        output="screen",
+        arguments=[
+            "/clock@rosgraph_msgs/msg/Clock[ignition.msgs.Clock"
+        ]
+    )
 
     return LaunchDescription([
         set_env,
         launch_gazebo,
+        global_clock,
     ] + spawn_actions)

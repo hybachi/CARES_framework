@@ -24,7 +24,7 @@
       battery_failure: 0.5
     
     nav2:
-      enabled: true
+      enabled: false
       use_sim_time: true
       map_yaml: "zones_map.yaml"
       params_file: "nav2_jethexa.yaml"
