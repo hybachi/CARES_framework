@@ -13,8 +13,9 @@ def generate_launch_description():
     chroma_bringup_dir = get_package_share_directory("chroma_bringup")
     ros_gz_sim = get_package_share_directory("ros_gz_sim")
 
-    world_file = os.path.join(chroma_sim_dir, "worlds", "new_zones.sdf")
+    world_file = os.path.join(chroma_sim_dir, "worlds", "usar_arena.sdf")
     swarm_config_path = os.path.join(chroma_sim_dir, "config", "swarm_config.yaml")
+    ekf_config_file = os.path.join(chroma_sim_dir, 'config', 'ekf_config.yaml')
 
     set_env = AppendEnvironmentVariable(
         "GZ_SIM_RESOURCE_PATH",
@@ -26,24 +27,22 @@ def generate_launch_description():
             os.path.join(ros_gz_sim, "launch", "gz_sim.launch.py")
         ),
         launch_arguments={
-            "gz_args": f"-r -v4 {world_file}",
+            "gz_args": f"-r -v1 {world_file}",
             "on_exit_shutdown": "true",
         }.items(),
     )
 
     def spawn_robot(robot_namespace, model_name, x, y, z, yaw,
                     xacro_file, config_name,
-                    execution_interface, telemetry_interface,
-                    initial_pose, params):
+                    execution_interface, telemetry_interface, params):
 
         robot_description = Command([
             "xacro ", xacro_file,
             " model_name:=", model_name,
         ])
 
-        # --- UNIVERSAL BASE TOPICS ---
         bridge_args = [
-            f"/model/{model_name}/odom@nav_msgs/msg/Odometry[ignition.msgs.Odometry",
+            f"/model/{model_name}/odom_raw@nav_msgs/msg/Odometry[ignition.msgs.Odometry",
             f"/model/{model_name}/scan@sensor_msgs/msg/LaserScan[ignition.msgs.LaserScan",
             f"/model/{model_name}/imu@sensor_msgs/msg/Imu[ignition.msgs.IMU",
             f"/model/{model_name}/joint_states@sensor_msgs/msg/JointState[ignition.msgs.Model",
@@ -52,7 +51,7 @@ def generate_launch_description():
         
         bridge_remaps = [
             "--ros-args",
-            "-r", f"/model/{model_name}/odom:=odom",
+            "-r", f"/model/{model_name}/odom_raw:=odom_raw",
             "-r", f"/model/{model_name}/scan:=scan",
             "-r", f"/model/{model_name}/imu:=imu",
             "-r", f"/model/{model_name}/joint_states:=joint_states",
@@ -63,7 +62,6 @@ def generate_launch_description():
             "-p", f"qos_overrides./{robot_namespace}/imu.publisher.durability:=volatile",
         ]
 
-        # --- INJECT CUSTOM BRIDGES FROM YAML ---
         for b in params.get('custom_bridges', []):
             bridge_args.append(b.format(name=model_name))
 
@@ -90,7 +88,29 @@ def generate_launch_description():
                 "robot_description": ParameterValue(robot_description, value_type=str),
             }],
             remappings=[
-                ('/tf',        f'/{robot_namespace}/tf'),
+                ('/tf', f'/{robot_namespace}/tf'),
+                ('/tf_static', f'/{robot_namespace}/tf_static'),
+            ]
+        )
+
+        ekf_node = Node(
+            package='robot_localization',
+            executable='ekf_node',
+            name='ekf_filter_node',
+            namespace=robot_namespace,
+            output='screen',
+            parameters=[
+                ekf_config_file,
+                {
+                    'use_sim_time': True,
+                    'odom_frame': f'{robot_namespace}/odom',
+                    'base_link_frame': f'{robot_namespace}/base_footprint',
+                    'world_frame': f'{robot_namespace}/odom'
+                }
+            ],
+            remappings=[
+                ('odometry/filtered', 'odom'),
+                ('/tf', f'/{robot_namespace}/tf'),
                 ('/tf_static', f'/{robot_namespace}/tf_static'),
             ]
         )
@@ -121,7 +141,7 @@ def generate_launch_description():
             }.items()
         )
 
-        robot_nodes = [gazebo_bridge, robot_state_publisher, spawn, chroma_brain]
+        robot_nodes = [gazebo_bridge, robot_state_publisher, spawn, ekf_node, chroma_brain]
 
         for node_info in params.get('extra_nodes', []):
             robot_nodes.append(Node(
@@ -149,7 +169,6 @@ def generate_launch_description():
             config_name = params['config'],
             execution_interface = params.get('execution_interface',  'nav2'),
             telemetry_interface = params.get('telemetry_interface',  'standard'),
-            initial_pose = params.get('initial_pose', {}),
             params = params 
         )
         spawn_actions.extend(robot_nodes)
@@ -164,8 +183,16 @@ def generate_launch_description():
         ]
     )
 
+    zone_monitor = Node(
+        package="chroma_simulation",
+        executable="zone_monitor.py",  
+        name="zone_monitor",
+        output="screen"
+    )
+
     return LaunchDescription([
         set_env,
         launch_gazebo,
         global_clock,
+        zone_monitor,
     ] + spawn_actions)

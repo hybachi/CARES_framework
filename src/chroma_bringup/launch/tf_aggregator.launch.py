@@ -1,3 +1,11 @@
+"""
+tf_aggregator.launch.py
+Bridges namespaced transforms to the global tree for multi-robot RViz.
+
+Author: H.A. Sharif
+Year: 2026
+"""
+
 import os
 import yaml
 from ament_index_python.packages import get_package_share_directory
@@ -13,7 +21,6 @@ def generate_launch_description():
 
     relay_nodes = []
     for robot_id in swarm_data.get('swarm', {}).keys():
-        # Relay /tb3_0/tf → /tf
         relay_nodes.append(Node(
             package='topic_tools',
             executable='relay',
@@ -21,7 +28,7 @@ def generate_launch_description():
             arguments=[f'/{robot_id}/tf', '/tf'],
             output='screen'
         ))
-        # Relay /tb3_0/tf_static → /tf_static
+
         relay_nodes.append(Node(
             package='topic_tools',
             executable='relay',

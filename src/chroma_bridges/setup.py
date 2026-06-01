@@ -13,15 +13,15 @@ setup(
     ],
     install_requires=['setuptools'],
     zip_safe=True,
-    maintainer='hybachi',
+    maintainer='H.A. Sharif',
     maintainer_email='hiba2anwar@gmail.com',
-    description='TODO: Package description',
-    license='TODO: License declaration',
+    description='Hardware bridges for the CHROMA framework',
+    license='Apache-2.0',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
             'telemetry_bridge = chroma_bridges.telemetry_bridge:main',
-            'cmd_vel_bridge = chroma_bridges.cmd_vel_bridge:main',
+            'degradation_manager = chroma_bridges.degradation_manager:main',
             'nav2_bridge = chroma_bridges.nav2_bridge:main'
         ],
     },

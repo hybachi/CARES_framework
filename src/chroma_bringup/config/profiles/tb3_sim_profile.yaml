@@ -1,33 +1,33 @@
 /**:
   ros__parameters:
-    robot_type: "UGV_WHEELED"
-    model_name: "turtlebot3_burger"
-    
-    # supported_tasks: ["SEARCH", "NAVIGATE"]
-    
+    robot_type: 'UGV_WHEELED'
+    model_name: 'turtlebot3_burger'
+
     capabilities:
       MOBILITY: 0.6
-      VISION: 0.0
-      NETWORK: 1.0
+      VISION: 0.6
       BATTERY: 1.0
+      PAYLOAD: 0.4
 
     thresholds:
-      MOBILITY: 0.3
-      VISION: 0.0
-      NETWORK: 0.4
+      MOBILITY: 0.4
+      VISION: 0.4
       BATTERY: 0.15
 
     fault_impacts:
       mobility_failure: 0.0
       vision_failure: 0.1
-      network_failure: 0.0
-      battery_failure: 0.5
-    
+      battery_failure: 0.0
+
+      mobility_penalty: 0.3
+      vision_penalty: 0.5
+      battery_penalty: 0.8
+
     nav2:
       enabled: true
       use_sim_time: true
-      map_yaml: "zones_map.yaml"
-      params_file: "nav2_tb3.yaml"
+      map_yaml: 'usar_map.yaml'
+      params_file: 'nav2_tb3.yaml'
       initial_pose:
         x: 0.0
         y: 0.0
@@ -37,10 +37,10 @@
       has_battery: false
       drain_rate_idle: 0.0005
       drain_rate_active: 0.002
-      
+
       watchdogs:
-        topics: ["odom", "scan"]
-        types: ["nav_msgs.msg.Odometry", "sensor_msgs.msg.LaserScan"]
-        capabilities: ["MOBILITY", "VISION"]
-        reliability:  ["reliable", "best_effort"] 
+        topics: ['odom', 'scan']
+        types: ['nav_msgs.msg.Odometry', 'sensor_msgs.msg.LaserScan']
+        capabilities: ['MOBILITY', 'VISION']
+        reliability: ['reliable', 'best_effort']
         timeouts: [2.0, 2.0]

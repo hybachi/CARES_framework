@@ -1,0 +1,622 @@
+<?xml version="1.0" ?>
+<sdf version="1.8">
+  <world name="usar_arena">
+    <plugin filename="libignition-gazebo-physics-system.so" name="ignition::gazebo::systems::Physics"></plugin>
+    <plugin filename="libignition-gazebo-user-commands-system.so" name="ignition::gazebo::systems::UserCommands"></plugin>
+    <plugin filename="libignition-gazebo-scene-broadcaster-system.so" name="ignition::gazebo::systems::SceneBroadcaster"></plugin>
+    <plugin filename="libignition-gazebo-sensors-system.so" name="ignition::gazebo::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+
+    <scene>
+      <ambient>0.8 0.8 0.8 1</ambient>
+      <background>0.7 0.7 0.7 1</background>
+      <shadows>true</shadows>
+    </scene>
+
+    <light type="directional" name="sun">
+      <cast_shadows>true</cast_shadows>
+      <pose>0 0 10 0 0 0</pose>
+      <diffuse>0.6 0.6 0.6 1</diffuse>
+      <specular>0.2 0.2 0.2 1</specular>
+      <direction>-0.5 0.3 -0.8</direction>
+    </light>
+
+    <model name="ground_plane">
+      <static>true</static>
+      <link name="link">
+        <collision name="ground_col">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>8 8</size>
+            </plane>
+          </geometry>
+        </collision>
+        <visual name="ground_vis">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>8 8</size>
+            </plane>
+          </geometry>
+          <material>
+            <ambient>0.8 0.8 0.8 1</ambient>
+            <diffuse>0.8 0.8 0.8 1</diffuse>
+            <pbr>
+              <metal>
+                <albedo_color>0.8 0.8 0.8 1</albedo_color>
+                <roughness>0.9</roughness>
+                <metalness>0.0</metalness>
+              </metal>
+            </pbr>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- ========================================== -->
+    <!-- PERIMETER WALLS (8x8 meters)               -->
+    <!-- ========================================== -->
+    <model name="perimeter">
+      <static>true</static>
+      <link name="wall_n">
+        <pose>0 4 0.25 0 0 0</pose>
+        <collision name="col_n">
+          <geometry>
+            <box>
+              <size>8 0.1 0.5</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="vis_n">
+          <geometry>
+            <box>
+              <size>8 0.1 0.5</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.7 0.7 0.75 1</ambient>
+            <diffuse>0.7 0.7 0.75 1</diffuse>
+            <pbr>
+              <metal>
+                <albedo_color>0.7 0.7 0.75 1</albedo_color>
+                <roughness>0.8</roughness>
+                <metalness>0.0</metalness>
+              </metal>
+            </pbr>
+          </material>
+        </visual>
+      </link>
+      <link name="wall_s">
+        <pose>0 -4 0.25 0 0 0</pose>
+        <collision name="col_s">
+          <geometry>
+            <box>
+              <size>8 0.1 0.5</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="vis_s">
+          <geometry>
+            <box>
+              <size>8 0.1 0.5</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.7 0.7 0.75 1</ambient>
+            <diffuse>0.7 0.7 0.75 1</diffuse>
+            <pbr>
+              <metal>
+                <albedo_color>0.7 0.7 0.75 1</albedo_color>
+                <roughness>0.8</roughness>
+                <metalness>0.0</metalness>
+              </metal>
+            </pbr>
+          </material>
+        </visual>
+      </link>
+      <link name="wall_e">
+        <pose>4 0 0.25 0 0 0</pose>
+        <collision name="col_e">
+          <geometry>
+            <box>
+              <size>0.1 8 0.5</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="vis_e">
+          <geometry>
+            <box>
+              <size>0.1 8 0.5</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.7 0.7 0.75 1</ambient>
+            <diffuse>0.7 0.7 0.75 1</diffuse>
+            <pbr>
+              <metal>
+                <albedo_color>0.7 0.7 0.75 1</albedo_color>
+                <roughness>0.8</roughness>
+                <metalness>0.0</metalness>
+              </metal>
+            </pbr>
+          </material>
+        </visual>
+      </link>
+      <link name="wall_w">
+        <pose>-4 0 0.25 0 0 0</pose>
+        <collision name="col_w">
+          <geometry>
+            <box>
+              <size>0.1 8 0.5</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="vis_w">
+          <geometry>
+            <box>
+              <size>0.1 8 0.5</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.7 0.7 0.75 1</ambient>
+            <diffuse>0.7 0.7 0.75 1</diffuse>
+            <pbr>
+              <metal>
+                <albedo_color>0.7 0.7 0.75 1</albedo_color>
+                <roughness>0.8</roughness>
+                <metalness>0.0</metalness>
+              </metal>
+            </pbr>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- ========================================== -->
+    <!-- ZONES FLOORS                               -->
+    <!-- ========================================== -->
+    <model name="floor_zones">
+      <static>true</static>
+
+      <!-- Maze Zone Floor -->
+      <link name="maze_zone">
+        <pose>-2.5 0 0.005 0 0 0</pose>
+        <collision name="maze_col">
+          <geometry>
+            <box>
+              <size>3 8 0.01</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="maze_vis">
+          <geometry>
+            <box>
+              <size>3 8 0.01</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.2 0.4 0.8 1</ambient>
+            <diffuse>0.2 0.4 0.8 1</diffuse>
+            <pbr>
+              <metal>
+                <albedo_color>0.2 0.4 0.8 1</albedo_color>
+                <roughness>0.9</roughness>
+                <metalness>0.0</metalness>
+              </metal>
+            </pbr>
+          </material>
+        </visual>
+      </link>
+
+      <!-- Safe Zone Floor -->
+      <link name="safe_zone">
+        <pose>0 0 0.005 0 0 0</pose>
+        <collision name="safe_col">
+          <geometry>
+            <box>
+              <size>2 8 0.01</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="safe_vis">
+          <geometry>
+            <box>
+              <size>2 8 0.01</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.2 0.8 0.3 1</ambient>
+            <diffuse>0.2 0.8 0.3 1</diffuse>
+            <pbr>
+              <metal>
+                <albedo_color>0.2 0.8 0.3 1</albedo_color>
+                <roughness>0.9</roughness>
+                <metalness>0.0</metalness>
+              </metal>
+            </pbr>
+          </material>
+        </visual>
+      </link>
+
+      <!-- Debris Zone Floor -->
+      <link name="gravel_zone">
+        <pose>2.5 0 0.005 0 0 0</pose>
+        <collision name="gravel_col">
+          <geometry>
+            <box>
+              <size>3 8 0.01</size>
+            </box>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>1.0</mu2>
+              </ode>
+            </friction>
+          </surface>
+        </collision>
+        <visual name="gravel_vis">
+          <geometry>
+            <box>
+              <size>3 8 0.01</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.8 0.5 0.2 1</ambient>
+            <diffuse>0.8 0.5 0.2 1</diffuse>
+            <pbr>
+              <metal>
+                <albedo_color>0.8 0.5 0.2 1</albedo_color>
+                <roughness>0.9</roughness>
+                <metalness>0.0</metalness>
+              </metal>
+            </pbr>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- ========================================== -->
+    <!-- DEBRIS FIELD                               -->
+    <!-- ========================================== -->
+    <model name="visual_rubble">
+      <static>true</static>
+      <!-- Rubble -->
+      <link name="rubble_1">
+        <pose>1.5 2.0 0.15 0 0 0</pose>
+        <collision name="r1_c">
+          <geometry>
+            <cylinder>
+              <radius>0.15</radius>
+              <length>0.3</length>
+            </cylinder>
+          </geometry>
+        </collision>
+        <visual name="r1_v">
+          <geometry>
+            <cylinder>
+              <radius>0.15</radius>
+              <length>0.3</length>
+            </cylinder>
+          </geometry>
+          <material>
+            <ambient>0.6 0.6 0.6 1</ambient>
+            <diffuse>0.6 0.6 0.6 1</diffuse>
+            <pbr>
+              <metal>
+                <albedo_color>0.6 0.6 0.6 1</albedo_color>
+                <roughness>0.8</roughness>
+                <metalness>0.0</metalness>
+              </metal>
+            </pbr>
+          </material>
+        </visual>
+      </link>
+      <link name="rubble_2">
+        <pose>3.0 -1.5 0.125 0 0 0</pose>
+        <collision name="r2_c">
+          <geometry>
+            <cylinder>
+              <radius>0.12</radius>
+              <length>0.25</length>
+            </cylinder>
+          </geometry>
+        </collision>
+        <visual name="r2_v">
+          <geometry>
+            <cylinder>
+              <radius>0.12</radius>
+              <length>0.25</length>
+            </cylinder>
+          </geometry>
+          <material>
+            <ambient>0.6 0.6 0.6 1</ambient>
+            <diffuse>0.6 0.6 0.6 1</diffuse>
+            <pbr>
+              <metal>
+                <albedo_color>0.6 0.6 0.6 1</albedo_color>
+                <roughness>0.8</roughness>
+                <metalness>0.0</metalness>
+              </metal>
+            </pbr>
+          </material>
+        </visual>
+      </link>
+      <link name="rubble_3">
+        <pose>2.5 0.5 0.15 0 0 0</pose>
+        <collision name="r3_c">
+          <geometry>
+            <cylinder>
+              <radius>0.1</radius>
+              <length>0.3</length>
+            </cylinder>
+          </geometry>
+        </collision>
+        <visual name="r3_v">
+          <geometry>
+            <cylinder>
+              <radius>0.1</radius>
+              <length>0.3</length>
+            </cylinder>
+          </geometry>
+          <material>
+            <ambient>0.6 0.6 0.6 1</ambient>
+            <diffuse>0.6 0.6 0.6 1</diffuse>
+            <pbr>
+              <metal>
+                <albedo_color>0.6 0.6 0.6 1</albedo_color>
+                <roughness>0.8</roughness>
+                <metalness>0.0</metalness>
+              </metal>
+            </pbr>
+          </material>
+        </visual>
+      </link>
+      <link name="rubble_4">
+        <pose>3.5 2.5 0.125 0 0 0</pose>
+        <collision name="r4_c">
+          <geometry>
+            <cylinder>
+              <radius>0.08</radius>
+              <length>0.25</length>
+            </cylinder>
+          </geometry>
+        </collision>
+        <visual name="r4_v">
+          <geometry>
+            <cylinder>
+              <radius>0.08</radius>
+              <length>0.25</length>
+            </cylinder>
+          </geometry>
+          <material>
+            <ambient>0.6 0.6 0.6 1</ambient>
+            <diffuse>0.6 0.6 0.6 1</diffuse>
+            <pbr>
+              <metal>
+                <albedo_color>0.6 0.6 0.6 1</albedo_color>
+                <roughness>0.8</roughness>
+                <metalness>0.0</metalness>
+              </metal>
+            </pbr>
+          </material>
+        </visual>
+      </link>
+
+      <!-- Bricks -->
+      <link name="brick_1">
+        <pose>3.2 1.2 0.1 0 0 0.5</pose>
+        <collision name="b1_c">
+          <geometry>
+            <box>
+              <size>0.4 0.4 0.2</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="b1_v">
+          <geometry>
+            <box>
+              <size>0.4 0.4 0.2</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.9 0.4 0.1 1</ambient>
+            <diffuse>0.9 0.4 0.1 1</diffuse>
+            <pbr>
+              <metal>
+                <albedo_color>0.9 0.4 0.1 1</albedo_color>
+                <roughness>0.9</roughness>
+                <metalness>0.0</metalness>
+              </metal>
+            </pbr>
+          </material>
+        </visual>
+      </link>
+      <link name="brick_2">
+        <pose>2.2 -1.0 0.125 0 0 -0.3</pose>
+        <collision name="b2_c">
+          <geometry>
+            <box>
+              <size>0.5 0.3 0.25</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="b2_v">
+          <geometry>
+            <box>
+              <size>0.5 0.3 0.25</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.9 0.4 0.1 1</ambient>
+            <diffuse>0.9 0.4 0.1 1</diffuse>
+            <pbr>
+              <metal>
+                <albedo_color>0.9 0.4 0.1 1</albedo_color>
+                <roughness>0.9</roughness>
+                <metalness>0.0</metalness>
+              </metal>
+            </pbr>
+          </material>
+        </visual>
+      </link>
+      <link name="brick_3">
+        <pose>1.8 -2.5 0.1 0 0 0.2</pose>
+        <collision name="b3_c">
+          <geometry>
+            <box>
+              <size>0.6 0.2 0.2</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="b3_v">
+          <geometry>
+            <box>
+              <size>0.6 0.2 0.2</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.9 0.4 0.1 1</ambient>
+            <diffuse>0.9 0.4 0.1 1</diffuse>
+            <pbr>
+              <metal>
+                <albedo_color>0.9 0.4 0.1 1</albedo_color>
+                <roughness>0.9</roughness>
+                <metalness>0.0</metalness>
+              </metal>
+            </pbr>
+          </material>
+        </visual>
+      </link>
+      <link name="brick_4">
+        <pose>2.8 -3.0 0.1 0 0 -0.5</pose>
+        <collision name="b4_c">
+          <geometry>
+            <box>
+              <size>0.4 0.2 0.2</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="b4_v">
+          <geometry>
+            <box>
+              <size>0.4 0.2 0.2</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.9 0.4 0.1 1</ambient>
+            <diffuse>0.9 0.4 0.1 1</diffuse>
+            <pbr>
+              <metal>
+                <albedo_color>0.9 0.4 0.1 1</albedo_color>
+                <roughness>0.9</roughness>
+                <metalness>0.0</metalness>
+              </metal>
+            </pbr>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- ========================================== -->
+    <!-- COLLAPSED BUILDING MAZE                    -->
+    <!-- ========================================== -->
+    <model name="building_maze">
+      <static>true</static>
+
+      <link name="baf1_top">
+        <pose>-1.2 2.7 0.25 0 0 0</pose>
+        <collision name="baf1t_c">
+          <geometry>
+            <box>
+              <size>0.1 2.6 0.5</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="baf1t_v">
+          <geometry>
+            <box>
+              <size>0.1 2.6 0.5</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.4 0.45 0.5 1</ambient>
+            <diffuse>0.5 0.55 0.6 1</diffuse>
+          </material>
+        </visual>
+      </link>
+      <link name="baf1_bot">
+        <pose>-1.2 -2.7 0.25 0 0 0</pose>
+        <collision name="baf1b_c">
+          <geometry>
+            <box>
+              <size>0.1 2.6 0.5</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="baf1b_v">
+          <geometry>
+            <box>
+              <size>0.1 2.6 0.5</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.4 0.45 0.5 1</ambient>
+            <diffuse>0.5 0.55 0.6 1</diffuse>
+          </material>
+        </visual>
+      </link>
+
+      <link name="baf2">
+        <pose>-2.7 1.2 0.25 0 0 0</pose>
+        <collision name="baf2_c">
+          <geometry>
+            <box>
+              <size>0.1 5.6 0.5</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="baf2_v">
+          <geometry>
+            <box>
+              <size>0.1 5.6 0.5</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.4 0.45 0.5 1</ambient>
+            <diffuse>0.5 0.55 0.6 1</diffuse>
+          </material>
+        </visual>
+      </link>
+
+      <!-- <link name="maze_rubble_1"><pose>-1.9 0.8 0.15 0 0 0</pose>
+        <collision name="mr1_c"><geometry><cylinder><radius>0.12</radius><length>0.3</length></cylinder></geometry></collision>
+        <visual name="mr1_v"><geometry><cylinder><radius>0.12</radius><length>0.3</length></cylinder></geometry><material><ambient>0.5 0.5 0.5 1</ambient><diffuse>0.6 0.6 0.6 1</diffuse></material></visual>
+      </link>
+      <link name="maze_rubble_2"><pose>-1.8 -1.5 0.1 0 0 0.5</pose>
+        <collision name="mr2_c"><geometry><box><size>0.4 0.3 0.2</size></box></geometry></collision>
+        <visual name="mr2_v"><geometry><box><size>0.4 0.3 0.2</size></box></geometry><material><ambient>0.4 0.45 0.5 1</ambient><diffuse>0.5 0.55 0.6 1</diffuse></material></visual>
+      </link>
+      <link name="maze_rubble_3"><pose>-2.0 -3.0 0.15 0 0 0</pose>
+        <collision name="mr3_c"><geometry><cylinder><radius>0.15</radius><length>0.3</length></cylinder></geometry></collision>
+        <visual name="mr3_v"><geometry><cylinder><radius>0.15</radius><length>0.3</length></cylinder></geometry><material><ambient>0.5 0.5 0.5 1</ambient><diffuse>0.6 0.6 0.6 1</diffuse></material></visual>
+      </link>
+      <link name="maze_rubble_4"><pose>-3.4 -1.0 0.1 0 0 -0.4</pose>
+        <collision name="mr4_c"><geometry><box><size>0.3 0.2 0.2</size></box></geometry></collision>
+        <visual name="mr4_v"><geometry><box><size>0.3 0.2 0.2</size></box></geometry><material><ambient>0.4 0.45 0.5 1</ambient><diffuse>0.5 0.55 0.6 1</diffuse></material></visual>
+      </link>
+      <link name="maze_rubble_5"><pose>-3.2 1.5 0.15 0 0 0</pose>
+        <collision name="mr5_c"><geometry><cylinder><radius>0.1</radius><length>0.3</length></cylinder></geometry></collision>
+        <visual name="mr5_v"><geometry><cylinder><radius>0.1</radius><length>0.3</length></cylinder></geometry><material><ambient>0.5 0.5 0.5 1</ambient><diffuse>0.6 0.6 0.6 1</diffuse></material></visual>
+      </link>
+      <link name="maze_rubble_6"><pose>-3.5 3.0 0.1 0 0 0.2</pose>
+        <collision name="mr6_c"><geometry><box><size>0.4 0.3 0.2</size></box></geometry></collision>
+        <visual name="mr6_v"><geometry><box><size>0.4 0.3 0.2</size></box></geometry><material><ambient>0.4 0.45 0.5 1</ambient><diffuse>0.5 0.55 0.6 1</diffuse></material></visual>
+      </link> -->
+
+    </model>
+  </world>
+</sdf>

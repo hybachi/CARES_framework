@@ -12,7 +12,7 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
-        (os.path.join('share', package_name, 'launch'), glob('launch/*.launch.py')),
+        # (os.path.join('share', package_name, 'launch'), glob('launch/*.launch.py')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -29,7 +29,7 @@ setup(
         'console_scripts': [
             'capability_manager = chroma_core.capability_manager:main',
             'task_allocator = chroma_core.task_allocator:main',
-            'mission_spawner = chroma_core.mission_spawner:main',
+            'mission_executor = chroma_core.mission_executor:main',
         ],
     },
 )

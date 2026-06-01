@@ -8,8 +8,7 @@
       <visual>
         <origin xyz="-0.032 0 0.0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://chroma_simulation/models/turtlebot3/lds.dae"
-                scale="0.001 0.001 0.001"/>
+          <mesh filename="package://chroma_simulation/models/turtlebot3/lds.dae" scale="0.001 0.001 0.001"/>
         </geometry>
         <material name="dark"/>
       </visual>
@@ -37,7 +36,6 @@
     </joint>
 
     <gazebo reference="base_scan">
-      <!-- <material>Gazebo/Black</material> -->
       <sensor name="lds_sensor" type="gpu_lidar">
         <pose>0 0 0 0 0 0</pose>
         <always_on>1</always_on>
@@ -53,7 +51,7 @@
           </scan>
           <range>
             <min>0.12</min>
-            <max>3.5</max>
+            <max>6.0</max>
           </range>
           <noise>
             <type>gaussian</type>
