@@ -21,7 +21,7 @@ setup(
     entry_points={
         'console_scripts': [
             'telemetry_bridge = chroma_bridges.telemetry_bridge:main',
-            'cmd_vel_bridge = chroma_bridges.cmd_vel_bridge:main',
+            'degradation_manager = chroma_bridges.degradation_manager:main',
             'nav2_bridge = chroma_bridges.nav2_bridge:main'
         ],
     },

@@ -17,4 +17,9 @@ install(PROGRAMS
   DESTINATION lib/${PROJECT_NAME}
 )
 
+install(PROGRAMS
+  scripts/zone_monitor.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+
 ament_package()

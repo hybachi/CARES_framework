@@ -28,11 +28,13 @@ class CapabilityManager(Node):
             self.declare_parameter(f'capabilities.{cap}', 1.0)
             self.declare_parameter(f'thresholds.{cap}', 0.2)
             self.declare_parameter(f'fault_impacts.{cap.lower()}_failure', 0.1)
+            self.declare_parameter(f'fault_impacts.{cap.lower()}_penalty', 0.8)
             
             # Load into dicts
             self.caps[cap] = self.get_parameter(f'capabilities.{cap}').value
             self.thresholds[cap] = self.get_parameter(f'thresholds.{cap}').value
             self.fault_impacts[f'{cap.lower()}_failure'] = self.get_parameter(f'fault_impacts.{cap.lower()}_failure').value
+            self.fault_impacts[f'{cap.lower()}_penalty'] = self.get_parameter(f'fault_impacts.{cap.lower()}_penalty').value
 
         # Subscribers
         self.create_subscription(Capability, 'telemetry', self.telemetry_callback, 10)
@@ -63,6 +65,8 @@ class CapabilityManager(Node):
         else:
             self.fault_map[fault] = True
             self.get_logger().warn(f"Fault injected: {fault}")
+            
+        self.publish_status()
 
     def publish_status(self):
         msg = SwarmStatus()
@@ -75,12 +79,16 @@ class CapabilityManager(Node):
             c.type = cap_type
             
             fault_key = f"{cap_type.lower()}_failure"
+            penalty_key = f"{cap_type.lower()}_penalty"
+
+            impact = 1.0
             if fault_key in self.fault_map:
-                impact = self.fault_impacts.get(fault_key, 0.1)
-                c.value = float(base_val * impact)
-            else:
-                c.value = float(base_val)
+                impact = self.fault_impacts.get(fault_key, 0.0)
+
+            elif penalty_key in self.fault_map:
+                impact = self.fault_impacts.get(penalty_key, 0.8)
                 
+            c.value = float(base_val * impact)
             c.is_degraded = c.value < self.thresholds.get(cap_type, 0.2)
             msg.capabilities.append(c)
 

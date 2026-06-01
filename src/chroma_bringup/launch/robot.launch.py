@@ -43,11 +43,6 @@ def generate_launch_description():
 
     bridge_nodes = [
         Node(
-            package='chroma_bridges', executable='cmd_vel_bridge',
-            namespace=robot_id, parameters=[{'robot_id': robot_id}],
-            condition=LaunchConfigurationEquals('execution_interface', 'cmd_vel')
-        ),
-        Node(
             package='chroma_bridges', executable='nav2_bridge',
             namespace=robot_id, parameters=[{'robot_id': robot_id}],
             condition=LaunchConfigurationEquals('execution_interface', 'nav2')
@@ -57,6 +52,11 @@ def generate_launch_description():
             namespace=robot_id,
             parameters=[config_path, {'robot_id': robot_id}],
             condition=LaunchConfigurationEquals('telemetry_interface', 'standard')
+        ),
+        Node(
+            package='chroma_bridges', executable='degradation_manager',
+            namespace=robot_id,
+            parameters=[config_path, {'robot_id': robot_id}],
         ),
     ]
 

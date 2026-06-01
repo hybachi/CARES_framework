@@ -75,6 +75,7 @@ def generate_launch_description():
                 'initial_pose.x': initial_x,
                 'initial_pose.y': initial_y,
                 'initial_pose.yaw': initial_yaw,
+                'cmd_vel_topic': 'cmd_vel_raw', 
             }.items()
         )
 

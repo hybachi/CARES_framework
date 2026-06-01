@@ -13,7 +13,7 @@ def generate_launch_description():
     chroma_bringup_dir = get_package_share_directory("chroma_bringup")
     ros_gz_sim = get_package_share_directory("ros_gz_sim")
 
-    world_file = os.path.join(chroma_sim_dir, "worlds", "new_zones.sdf")
+    world_file = os.path.join(chroma_sim_dir, "worlds", "usar_arena.sdf")
     swarm_config_path = os.path.join(chroma_sim_dir, "config", "swarm_config.yaml")
 
     set_env = AppendEnvironmentVariable(
@@ -164,8 +164,16 @@ def generate_launch_description():
         ]
     )
 
+    zone_monitor = Node(
+        package="chroma_simulation",
+        executable="zone_monitor.py",  
+        name="zone_monitor",
+        output="screen"
+    )
+
     return LaunchDescription([
         set_env,
         launch_gazebo,
         global_clock,
+        zone_monitor,
     ] + spawn_actions)

@@ -3,6 +3,10 @@
 # ==========================================
 .tb3_template: &tb3_template
   z: 0.01
+  hazard_zone:
+    x_min: 4.0
+    x_max: 1.0
+    fault: "mobility_penalty"
   custom_bridges:
     - "/model/{name}/cmd_vel@geometry_msgs/msg/Twist]ignition.msgs.Twist"
   custom_remaps:
@@ -13,6 +17,10 @@
   extra_nodes:
     - package: "chroma_simulation"
       executable: "jethexa_gait.py"
+  hazard_zone:
+    x_min: -4.0
+    x_max: -1.0
+    fault: "mobility_penalty"
   custom_bridges:
     - "/model/{name}/camera@sensor_msgs/msg/Image[ignition.msgs.Image"
     - "/model/{name}/camera_info@sensor_msgs/msg/CameraInfo[ignition.msgs.CameraInfo"

@@ -3,25 +3,25 @@
     robot_type: "UGV_LEGGED"
     model_name: "jethexa"
     
-    # supported_tasks: ["SEARCH", "NAVIGATE"]
-    
     capabilities:
       MOBILITY: 0.6
       VISION: 0.0
-      NETWORK: 1.0
       BATTERY: 1.0
 
     thresholds:
       MOBILITY: 0.3
       VISION: 0.0
-      NETWORK: 0.4
       BATTERY: 0.15
 
+    # Assigns cap = base * fault
     fault_impacts:
       mobility_failure: 0.0
       vision_failure: 0.1
-      network_failure: 0.0
       battery_failure: 0.5
+
+      mobility_penalty: 0.4
+      vision_penalty: 0.8
+      battery_penalty: 0.9
     
     nav2:
       enabled: false
