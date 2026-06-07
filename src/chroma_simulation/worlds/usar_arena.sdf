@@ -526,118 +526,97 @@
     <!-- ========================================== -->
     <model name="building_maze">
       <static>true</static>
+
       <link name="baf1_top">
-        <pose>-1.5 2.6 0.25 0 0 0</pose>
+        <pose>-1.2 2.7 0.25 0 0 0</pose>
         <collision name="baf1t_c">
           <geometry>
             <box>
-              <size>0.1 2.8 0.5</size>
+              <size>0.1 2.6 0.5</size>
             </box>
           </geometry>
         </collision>
         <visual name="baf1t_v">
           <geometry>
             <box>
-              <size>0.1 2.8 0.5</size>
+              <size>0.1 2.6 0.5</size>
             </box>
           </geometry>
           <material>
-            <ambient>0.5 0.6 0.7 1</ambient>
-            <diffuse>0.5 0.6 0.7 1</diffuse>
-            <pbr>
-              <metal>
-                <albedo_color>0.5 0.6 0.7 1</albedo_color>
-                <roughness>0.8</roughness>
-                <metalness>0.0</metalness>
-              </metal>
-            </pbr>
+            <ambient>0.4 0.45 0.5 1</ambient>
+            <diffuse>0.5 0.55 0.6 1</diffuse>
           </material>
         </visual>
       </link>
       <link name="baf1_bot">
-        <pose>-1.5 -2.6 0.25 0 0 0</pose>
+        <pose>-1.2 -2.7 0.25 0 0 0</pose>
         <collision name="baf1b_c">
           <geometry>
             <box>
-              <size>0.1 2.8 0.5</size>
+              <size>0.1 2.6 0.5</size>
             </box>
           </geometry>
         </collision>
         <visual name="baf1b_v">
           <geometry>
             <box>
-              <size>0.1 2.8 0.5</size>
+              <size>0.1 2.6 0.5</size>
             </box>
           </geometry>
           <material>
-            <ambient>0.5 0.6 0.7 1</ambient>
-            <diffuse>0.5 0.6 0.7 1</diffuse>
-            <pbr>
-              <metal>
-                <albedo_color>0.5 0.6 0.7 1</albedo_color>
-                <roughness>0.8</roughness>
-                <metalness>0.0</metalness>
-              </metal>
-            </pbr>
+            <ambient>0.4 0.45 0.5 1</ambient>
+            <diffuse>0.5 0.55 0.6 1</diffuse>
           </material>
         </visual>
       </link>
+
       <link name="baf2">
-        <pose>-2.3 -0.4 0.25 0 0 0</pose>
+        <pose>-2.7 1.2 0.25 0 0 0</pose>
         <collision name="baf2_c">
           <geometry>
             <box>
-              <size>0.1 7.2 0.5</size>
+              <size>0.1 5.6 0.5</size>
             </box>
           </geometry>
         </collision>
         <visual name="baf2_v">
           <geometry>
             <box>
-              <size>0.1 7.2 0.5</size>
+              <size>0.1 5.6 0.5</size>
             </box>
           </geometry>
           <material>
-            <ambient>0.5 0.6 0.7 1</ambient>
-            <diffuse>0.5 0.6 0.7 1</diffuse>
-            <pbr>
-              <metal>
-                <albedo_color>0.5 0.6 0.7 1</albedo_color>
-                <roughness>0.8</roughness>
-                <metalness>0.0</metalness>
-              </metal>
-            </pbr>
+            <ambient>0.4 0.45 0.5 1</ambient>
+            <diffuse>0.5 0.55 0.6 1</diffuse>
           </material>
         </visual>
       </link>
-      <link name="baf3">
-        <pose>-3.1 0.4 0.25 0 0 0</pose>
-        <collision name="baf3_c">
-          <geometry>
-            <box>
-              <size>0.1 7.2 0.5</size>
-            </box>
-          </geometry>
-        </collision>
-        <visual name="baf3_v">
-          <geometry>
-            <box>
-              <size>0.1 7.2 0.5</size>
-            </box>
-          </geometry>
-          <material>
-            <ambient>0.5 0.6 0.7 1</ambient>
-            <diffuse>0.5 0.6 0.7 1</diffuse>
-            <pbr>
-              <metal>
-                <albedo_color>0.5 0.6 0.7 1</albedo_color>
-                <roughness>0.8</roughness>
-                <metalness>0.0</metalness>
-              </metal>
-            </pbr>
-          </material>
-        </visual>
+
+      <!-- <link name="maze_rubble_1"><pose>-1.9 0.8 0.15 0 0 0</pose>
+        <collision name="mr1_c"><geometry><cylinder><radius>0.12</radius><length>0.3</length></cylinder></geometry></collision>
+        <visual name="mr1_v"><geometry><cylinder><radius>0.12</radius><length>0.3</length></cylinder></geometry><material><ambient>0.5 0.5 0.5 1</ambient><diffuse>0.6 0.6 0.6 1</diffuse></material></visual>
       </link>
+      <link name="maze_rubble_2"><pose>-1.8 -1.5 0.1 0 0 0.5</pose>
+        <collision name="mr2_c"><geometry><box><size>0.4 0.3 0.2</size></box></geometry></collision>
+        <visual name="mr2_v"><geometry><box><size>0.4 0.3 0.2</size></box></geometry><material><ambient>0.4 0.45 0.5 1</ambient><diffuse>0.5 0.55 0.6 1</diffuse></material></visual>
+      </link>
+      <link name="maze_rubble_3"><pose>-2.0 -3.0 0.15 0 0 0</pose>
+        <collision name="mr3_c"><geometry><cylinder><radius>0.15</radius><length>0.3</length></cylinder></geometry></collision>
+        <visual name="mr3_v"><geometry><cylinder><radius>0.15</radius><length>0.3</length></cylinder></geometry><material><ambient>0.5 0.5 0.5 1</ambient><diffuse>0.6 0.6 0.6 1</diffuse></material></visual>
+      </link>
+      <link name="maze_rubble_4"><pose>-3.4 -1.0 0.1 0 0 -0.4</pose>
+        <collision name="mr4_c"><geometry><box><size>0.3 0.2 0.2</size></box></geometry></collision>
+        <visual name="mr4_v"><geometry><box><size>0.3 0.2 0.2</size></box></geometry><material><ambient>0.4 0.45 0.5 1</ambient><diffuse>0.5 0.55 0.6 1</diffuse></material></visual>
+      </link>
+      <link name="maze_rubble_5"><pose>-3.2 1.5 0.15 0 0 0</pose>
+        <collision name="mr5_c"><geometry><cylinder><radius>0.1</radius><length>0.3</length></cylinder></geometry></collision>
+        <visual name="mr5_v"><geometry><cylinder><radius>0.1</radius><length>0.3</length></cylinder></geometry><material><ambient>0.5 0.5 0.5 1</ambient><diffuse>0.6 0.6 0.6 1</diffuse></material></visual>
+      </link>
+      <link name="maze_rubble_6"><pose>-3.5 3.0 0.1 0 0 0.2</pose>
+        <collision name="mr6_c"><geometry><box><size>0.4 0.3 0.2</size></box></geometry></collision>
+        <visual name="mr6_v"><geometry><box><size>0.4 0.3 0.2</size></box></geometry><material><ambient>0.4 0.45 0.5 1</ambient><diffuse>0.5 0.55 0.6 1</diffuse></material></visual>
+      </link> -->
+
     </model>
   </world>
 </sdf>

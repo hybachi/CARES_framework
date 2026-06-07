@@ -1,4 +1,5 @@
 import rclpy
+import math
 from rclpy.node import Node
 from rclpy.action import ActionClient
 from action_msgs.msg import GoalStatus
@@ -14,9 +15,9 @@ class Nav2Bridge(Node):
         self.active_task = None
         self.goal_handle = None 
 
-        self.create_subscription(Task, 'execute_task', self.task_cb, 10)
+        self.create_subscription(Task, 'execute_waypoint', self.task_cb, 10)
         self.create_subscription(TaskAllocation, '/swarm/allocation', self.alloc_cb, 10)
-        self.alloc_pub = self.create_publisher(TaskAllocation, '/swarm/allocation', 10)
+        self.alloc_pub = self.create_publisher(TaskAllocation, 'execution_status', 10)
 
         self.nav_client = ActionClient(self, NavigateToPose, 'navigate_to_pose')
 
@@ -32,12 +33,20 @@ class Nav2Bridge(Node):
         goal = NavigateToPose.Goal()
         goal.pose.header.frame_id = 'map'
         goal.pose.header.stamp = self.get_clock().now().to_msg()  
+        
+        # Position
         goal.pose.pose.position.x = msg.location.x
         goal.pose.pose.position.y = msg.location.y
-        goal.pose.pose.orientation.w = 1.0
+        
+        # Orientation
+        yaw = msg.location.z
+        goal.pose.pose.orientation.x = 0.0
+        goal.pose.pose.orientation.y = 0.0
+        goal.pose.pose.orientation.z = math.sin(yaw / 2.0)
+        goal.pose.pose.orientation.w = math.cos(yaw / 2.0)
 
         self.get_logger().info(
-            f"Navigating to ({msg.location.x:.2f}, {msg.location.y:.2f}) for task {msg.task_id}"
+            f"Navigating to ({msg.location.x:.2f}, {msg.location.y:.2f}) facing {math.degrees(yaw):.0f} deg"
         )
         send_future = self.nav_client.send_goal_async(goal)
         send_future.add_done_callback(self.goal_response_cb)

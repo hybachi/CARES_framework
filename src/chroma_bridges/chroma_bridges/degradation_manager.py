@@ -15,7 +15,8 @@ class HardwareDegradationManager(Node):
         self.caps = {
             "MOBILITY": 1.0,
             "VISION": 1.0,
-            "BATTERY": 1.0
+            # TODO: handle battery degradation
+            # "BATTERY": 1.0
         }
 
         self.last_cmd = Twist()
@@ -25,6 +26,7 @@ class HardwareDegradationManager(Node):
         self.create_subscription(Twist, 'cmd_vel_raw', self.cmd_cb, 10)
         self.vel_pub = self.create_publisher(Twist, 'cmd_vel', 10)
 
+        # TODO: implement vision degradation
         # self.create_subscription(LaserScan, 'scan_raw', self.scan_cb, 10)
         # self.scan_pub = self.create_publisher(LaserScan, 'scan', 10)
 
@@ -52,21 +54,6 @@ class HardwareDegradationManager(Node):
         throttled_msg.angular.z = msg.angular.z * mobility_score
         
         self.vel_pub.publish(throttled_msg)
-
-    # def scan_cb(self, msg: LaserScan):
-    #     vision_score = self.caps["VISION"]
-        
-    #     degraded_msg = msg
-        
-    #     if vision_score < 1.0:
-    #         noise_intensity = (1.0 - vision_score) * 0.5
-
-    #         degraded_msg.ranges = [
-    #             r + random.gauss(0, noise_intensity) if r < msg.range_max else r
-    #             for r in msg.ranges
-    #         ]
-            
-    #     self.scan_pub.publish(degraded_msg)
 
 
 def main(args=None):

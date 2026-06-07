@@ -7,13 +7,12 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from nav2_common.launch import RewrittenYaml
 
 def generate_launch_description():
-    bringup_dir = get_package_share_directory('chroma_bringup')
     nav2_bringup_dir = get_package_share_directory('nav2_bringup')
 
     args = [
         DeclareLaunchArgument('robot_id', default_value='tb3_0'),
         DeclareLaunchArgument('map_yaml', default_value=''),
-        DeclareLaunchArgument('nav2_params', default_value=os.path.join(bringup_dir, 'config', 'nav2', 'tb3_nav2_params.yaml')),
+        DeclareLaunchArgument('nav2_params', default_value=''),
         DeclareLaunchArgument('use_sim_time', default_value='false'),
         DeclareLaunchArgument('initial_x', default_value='0.0'),
         DeclareLaunchArgument('initial_y', default_value='0.0'),

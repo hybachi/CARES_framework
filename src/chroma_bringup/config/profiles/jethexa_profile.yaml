@@ -3,9 +3,6 @@
     robot_type: "UGV_LEGGED"
     model_name: "jethexa" 
     
-    # TODO: implement supported tasks
-    # supported_tasks: ["SEARCH", "INSPECT", "SCAN", "NAVIGATE"]
-    
     capabilities:
       MOBILITY: 1.0
       VISION: 1.0

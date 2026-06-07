@@ -1,0 +1,30 @@
+/**:
+  ros__parameters:
+    frequency: 30.0
+    sensor_timeout: 0.1
+    two_d_mode: true
+    transform_time_offset: 0.0
+    transform_timeout: 0.0
+    print_diagnostics: true
+    debug: false
+    publish_tf: true
+
+    odom0: odom_raw
+    odom0_config: [true,  true,  false, # X, Y, Z
+                   false, false, true,  # Roll, Pitch, Yaw
+                   true,  true,  false, # dX, dY, dZ
+                   false, false, true,  # dRoll, dPitch, dYaw
+                   false, false, false] # X, Y, Z accel
+    odom0_differential: false
+    odom0_queue_size: 10
+
+    imu0: imu
+    imu0_config: [false, false, false, # X, Y, Z
+                  false, false, false, # Roll, Pitch, Yaw
+                  false, false, false, # dX, dY, dZ
+                  false, false, true,  # dRoll, dPitch, dYaw (IMU Gyro is highly accurate!)
+                  true,  true,  false] # X, Y, Z accel
+    imu0_differential: false
+    imu0_relative: true
+    imu0_queue_size: 10
+    imu0_remove_gravitational_acceleration: true

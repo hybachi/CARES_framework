@@ -3,30 +3,30 @@
     robot_type: "UGV_WHEELED"
     model_name: "turtlebot3_burger"
     
-    # supported_tasks: ["SEARCH", "NAVIGATE"]
-    
     capabilities:
       MOBILITY: 0.6
       VISION: 0.0
-      NETWORK: 1.0
       BATTERY: 1.0
+      PAYLOAD: 0.4
 
     thresholds:
       MOBILITY: 0.3
       VISION: 0.0
-      NETWORK: 0.4
       BATTERY: 0.15
 
     fault_impacts:
       mobility_failure: 0.0
       vision_failure: 0.1
-      network_failure: 0.0
       battery_failure: 0.5
+
+      mobility_penalty: 0.4
+      vision_penalty: 0.8
+      battery_penalty: 0.9
     
     nav2:
       enabled: true
       use_sim_time: true
-      map_yaml: "zones_map.yaml"
+      map_yaml: "usar_map.yaml"
       params_file: "nav2_tb3.yaml"
       initial_pose:
         x: 0.0

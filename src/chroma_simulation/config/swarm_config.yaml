@@ -1,11 +1,9 @@
-# ==========================================
-# ROBOT TEMPLATES (Defines hardware rules)
-# ==========================================
+# ROBOT TEMPLATES
 .tb3_template: &tb3_template
   z: 0.01
   hazard_zone:
-    x_min: 4.0
-    x_max: 1.0
+    x_min: 1.0
+    x_max: 4.0
     fault: "mobility_penalty"
   custom_bridges:
     - "/model/{name}/cmd_vel@geometry_msgs/msg/Twist]ignition.msgs.Twist"
@@ -69,17 +67,16 @@
     - "/model/{name}/joint/tibia_joint_RR/cmd_pos:=joint/tibia_joint_RR/cmd_pos"
 
 
-# ==========================================
+
 # SWARM DEPLOYMENT
-# ==========================================
 swarm:
-  # tb3_1:
-  #   <<: *tb3_template
-  #   urdf: "turtlebot3/robot.urdf.xacro"
-  #   config: "tb3_sim_profile.yaml"
-  #   x: 0.0
-  #   y: 0.0
-  #   yaw: 0.0
+  tb3_1:
+    <<: *tb3_template
+    urdf: "turtlebot3/robot.urdf.xacro"
+    config: "tb3_sim_profile.yaml"
+    x: 0.0
+    y: 0.0
+    yaw: 0.0
 
   # tb3_2:
   #   <<: *tb3_template
@@ -89,13 +86,13 @@ swarm:
   #   y: 1.0
   #   yaw: 1.57
 
-  jethexa_1:
-    <<: *jethexa_template
-    urdf: "jethexa/robot.urdf.xacro"
-    config: "jethexa_sim_profile.yaml"
-    x: 2.0
-    y: 0.0
-    yaw: 0.0
+  # jethexa_1:
+  #   <<: *jethexa_template
+  #   urdf: "jethexa/robot.urdf.xacro"
+  #   config: "jethexa_sim_profile.yaml"
+  #   x: 2.0
+  #   y: 0.0
+  #   yaw: 0.0
 
   # jethexa_2:
   #   <<: *jethexa_template

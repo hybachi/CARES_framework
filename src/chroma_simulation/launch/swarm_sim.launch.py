@@ -15,6 +15,7 @@ def generate_launch_description():
 
     world_file = os.path.join(chroma_sim_dir, "worlds", "usar_arena.sdf")
     swarm_config_path = os.path.join(chroma_sim_dir, "config", "swarm_config.yaml")
+    ekf_config_file = os.path.join(chroma_sim_dir, 'config', 'ekf_config.yaml')
 
     set_env = AppendEnvironmentVariable(
         "GZ_SIM_RESOURCE_PATH",
@@ -94,6 +95,29 @@ def generate_launch_description():
                 ('/tf_static', f'/{robot_namespace}/tf_static'),
             ]
         )
+
+        # TODO: implement sensor fusion
+        # ekf_node = Node(
+        #     package='robot_localization',
+        #     executable='ekf_node',
+        #     name='ekf_filter_node',
+        #     namespace=robot_namespace,
+        #     output='screen',
+        #     parameters=[
+        #         ekf_config_file,
+        #         {
+        #             'use_sim_time': True,
+        #             'odom_frame': f'{robot_namespace}/odom',
+        #             'base_link_frame': f'{robot_namespace}/base_footprint',
+        #             'world_frame': f'{robot_namespace}/odom'
+        #         }
+        #     ],
+        #     remappings=[
+        #         ('odometry/filtered', 'odom'),
+        #         ('/tf', f'/{robot_namespace}/tf'),
+        #         ('/tf_static', f'/{robot_namespace}/tf_static'),
+        #     ]
+        # )
 
         spawn = Node(
             package="ros_gz_sim",

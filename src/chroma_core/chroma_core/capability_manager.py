@@ -6,35 +6,22 @@ from chroma_interfaces.msg import SwarmStatus, Capability
 
 class CapabilityManager(Node):
     def __init__(self):
-        super().__init__('capability_manager')
+        super().__init__(
+            'capability_manager',
+            allow_undeclared_parameters=True,
+            automatically_declare_parameters_from_overrides=True
+        )
         
-        # Parameters
-        self.declare_parameter('robot_id', 'unknown')
-        self.declare_parameter('robot_type', 'UGV')
+        self.robot_id = self.get_parameter('robot_id').value if self.has_parameter('robot_id') else 'unknown'
+        self.robot_type = self.get_parameter('robot_type').value if self.has_parameter('robot_type') else 'UGV'
 
-        self.robot_id = self.get_parameter('robot_id').value
-        self.robot_type = self.get_parameter('robot_type').value
-
-        # State Dictionaries
-        self.caps = {}
-        self.thresholds = {}
         self.fault_map = {}
-        self.fault_impacts = {}
 
-        # Load Parameters from YAML
-        core_capabilities = ['MOBILITY', 'VISION', 'NETWORK', 'BATTERY']
-        for cap in core_capabilities:
-            # Declare
-            self.declare_parameter(f'capabilities.{cap}', 1.0)
-            self.declare_parameter(f'thresholds.{cap}', 0.2)
-            self.declare_parameter(f'fault_impacts.{cap.lower()}_failure', 0.1)
-            self.declare_parameter(f'fault_impacts.{cap.lower()}_penalty', 0.8)
-            
-            # Load into dicts
-            self.caps[cap] = self.get_parameter(f'capabilities.{cap}').value
-            self.thresholds[cap] = self.get_parameter(f'thresholds.{cap}').value
-            self.fault_impacts[f'{cap.lower()}_failure'] = self.get_parameter(f'fault_impacts.{cap.lower()}_failure').value
-            self.fault_impacts[f'{cap.lower()}_penalty'] = self.get_parameter(f'fault_impacts.{cap.lower()}_penalty').value
+        self.caps = {k: v.value for k, v in self.get_parameters_by_prefix('capabilities').items()}
+        self.thresholds = {k: v.value for k, v in self.get_parameters_by_prefix('thresholds').items()}
+        self.fault_impacts = {k: v.value for k, v in self.get_parameters_by_prefix('fault_impacts').items()}
+
+        self.get_logger().info(f"[{self.robot_id}] Tracking capabilities: {list(self.caps.keys())}")
 
         # Subscribers
         self.create_subscription(Capability, 'telemetry', self.telemetry_callback, 10)
@@ -46,12 +33,10 @@ class CapabilityManager(Node):
             durability=DurabilityPolicy.TRANSIENT_LOCAL,
             history=HistoryPolicy.KEEP_LAST,
             depth=1
-            # TODO: deadline property to handle missed messages
         )
 
-        # Publishes to a global topic, but listeners filter by ID
         self.swarm_pub = self.create_publisher(SwarmStatus, '/swarm/status', swarm_qos)
-        self.create_timer(5.0, self.publish_status) # Publish once every 5 seconds
+        self.create_timer(5.0, self.publish_status) 
 
 
     def telemetry_callback(self, msg):
@@ -65,7 +50,6 @@ class CapabilityManager(Node):
         else:
             self.fault_map[fault] = True
             self.get_logger().warn(f"Fault injected: {fault}")
-            
         self.publish_status()
 
     def publish_status(self):
@@ -78,13 +62,12 @@ class CapabilityManager(Node):
             c = Capability()
             c.type = cap_type
             
-            fault_key = f"{cap_type.lower()}_failure"
+            fail_key = f"{cap_type.lower()}_failure"
             penalty_key = f"{cap_type.lower()}_penalty"
-
+            
             impact = 1.0
-            if fault_key in self.fault_map:
-                impact = self.fault_impacts.get(fault_key, 0.0)
-
+            if fail_key in self.fault_map:
+                impact = self.fault_impacts.get(fail_key, 0.0)
             elif penalty_key in self.fault_map:
                 impact = self.fault_impacts.get(penalty_key, 0.8)
                 
@@ -93,7 +76,6 @@ class CapabilityManager(Node):
             msg.capabilities.append(c)
 
         self.swarm_pub.publish(msg)
-    
     
 def main(args=None):
     rclpy.init(args=args)

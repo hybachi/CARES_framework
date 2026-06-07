@@ -15,12 +15,18 @@
         <wheel_radius>0.033</wheel_radius>
         <max_linear_acceleration>0.33</max_linear_acceleration>
 
+        <covariance_x>0.0001</covariance_x>
+        <covariance_y>0.0001</covariance_y>
+        <covariance_yaw>0.01</covariance_yaw>
+
         <topic>/model/${model_name}/cmd_vel</topic>
 
         <frame_id>${model_name}/odom</frame_id>
         <child_frame_id>${model_name}/base_footprint</child_frame_id>
 
-        <odom_topic>/model/${model_name}/odom</odom_topic>
+        <!-- <publish_odom_tf>false</publish_odom_tf> -->
+        <!-- <odom_topic>/model/${model_name}/odom_raw</odom_topic> -->
+         <odom_topic>/model/${model_name}/odom</odom_topic>
         <odom_publisher_frequency>30</odom_publisher_frequency>
 
         <tf_topic>/model/${model_name}/tf</tf_topic>

@@ -7,6 +7,7 @@
       MOBILITY: 0.6
       VISION: 0.0
       BATTERY: 1.0
+      PAYLOAD: 0.6
 
     thresholds:
       MOBILITY: 0.3

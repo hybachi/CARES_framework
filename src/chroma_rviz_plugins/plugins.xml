@@ -1,0 +1,31 @@
+<library path="chroma_rviz_plugins">
+  <class name="chroma_rviz_plugins/MissionPanel"
+         type="chroma_rviz_plugins::MissionPanel"
+         base_class_type="rviz_common::Panel">
+    <description>A panel to spawn CHROMA tasks using map clicks.</description>
+  </class>
+
+  <class name="chroma_rviz_plugins/StatusPanel"
+         type="chroma_rviz_plugins::StatusPanel"
+         base_class_type="rviz_common::Panel">
+    <description>A panel to monitor live capability health of the CHROMA swarm.</description>
+  </class>
+
+  <class name="chroma_rviz_plugins/TaskPanel"
+         type="chroma_rviz_plugins::TaskPanel"
+         base_class_type="rviz_common::Panel">
+    <description>A panel to monitor the status of CHROMA swarm tasks.</description>
+  </class>
+
+  <class name="chroma_rviz_plugins/LogPanel"
+         type="chroma_rviz_plugins::LogPanel"
+         base_class_type="rviz_common::Panel">
+    <description>A live terminal panel to monitor CHROMA swarm logs.</description>
+  </class>
+
+  <class name="chroma_rviz_plugins/FaultPanel"
+         type="chroma_rviz_plugins::FaultPanel"
+         base_class_type="rviz_common::Panel">
+    <description>A panel to manually inject hardware faults into the CHROMA swarm.</description>
+  </class>
+</library>
