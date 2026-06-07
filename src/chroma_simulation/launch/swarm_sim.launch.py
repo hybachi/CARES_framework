@@ -116,6 +116,29 @@ def generate_launch_description():
             ]
         )
 
+        # TODO: implement sensor fusion
+        # ekf_node = Node(
+        #     package='robot_localization',
+        #     executable='ekf_node',
+        #     name='ekf_filter_node',
+        #     namespace=robot_namespace,
+        #     output='screen',
+        #     parameters=[
+        #         ekf_config_file,
+        #         {
+        #             'use_sim_time': True,
+        #             'odom_frame': f'{robot_namespace}/odom',
+        #             'base_link_frame': f'{robot_namespace}/base_footprint',
+        #             'world_frame': f'{robot_namespace}/odom'
+        #         }
+        #     ],
+        #     remappings=[
+        #         ('odometry/filtered', 'odom'),
+        #         ('/tf', f'/{robot_namespace}/tf'),
+        #         ('/tf_static', f'/{robot_namespace}/tf_static'),
+        #     ]
+        # )
+
         spawn = Node(
             package="ros_gz_sim",
             executable="create",
