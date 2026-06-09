@@ -18,7 +18,7 @@ local_costmap:
 global_costmap:
   global_costmap:
     ros__parameters:
-      robot_radius: 0.2
+      robot_radius: 0.15
 
 behavior_server:
   ros__parameters:

@@ -24,9 +24,9 @@
         <frame_id>${model_name}/odom</frame_id>
         <child_frame_id>${model_name}/base_footprint</child_frame_id>
 
-        <!-- <publish_odom_tf>false</publish_odom_tf> -->
-        <!-- <odom_topic>/model/${model_name}/odom_raw</odom_topic> -->
-         <odom_topic>/model/${model_name}/odom</odom_topic>
+        <publish_odom_tf>false</publish_odom_tf>
+        <odom_topic>/model/${model_name}/odom_raw</odom_topic>
+         <!-- <odom_topic>/model/${model_name}/odom</odom_topic> -->
         <odom_publisher_frequency>30</odom_publisher_frequency>
 
         <tf_topic>/model/${model_name}/tf</tf_topic>

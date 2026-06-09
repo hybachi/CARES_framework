@@ -4,30 +4,30 @@
     model_name: 'jethexa'
 
     capabilities:
-      MOBILITY: 0.6
-      VISION: 1.0
+      MOBILITY: 0.8
+      VISION: 0.8
       BATTERY: 1.0
-      PAYLOAD: 0.6
+      PAYLOAD: 0.7
 
     thresholds:
       MOBILITY: 0.3
-      VISION: 0.3
-      BATTERY: 0.15
+      VISION: 0.2
+      BATTERY: 0.2
 
     # Assigns cap = base * fault
     fault_impacts:
       mobility_failure: 0.0
       vision_failure: 0.1
-      battery_failure: 0.5
+      battery_failure: 0.0
 
-      mobility_penalty: 0.4
+      mobility_penalty: 0.6
       vision_penalty: 0.8
-      battery_penalty: 0.9
+      battery_penalty: 0.6
 
     nav2:
       enabled: true
       use_sim_time: true
-      map_yaml: 'zones_map.yaml'
+      map_yaml: 'usar_map.yaml'
       params_file: 'nav2_jethexa.yaml'
       initial_pose:
         x: 0.0
