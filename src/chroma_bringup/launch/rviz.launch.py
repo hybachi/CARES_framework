@@ -1,3 +1,11 @@
+"""
+rviz.launch.py
+Starts RViz with CHROMA dashboard panels and config.
+
+Author: H.A. Sharif
+Year: 2026
+"""
+
 import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription

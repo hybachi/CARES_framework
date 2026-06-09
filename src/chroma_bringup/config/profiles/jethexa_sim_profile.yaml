@@ -1,17 +1,17 @@
 /**:
   ros__parameters:
-    robot_type: "UGV_LEGGED"
-    model_name: "jethexa"
-    
+    robot_type: 'UGV_LEGGED'
+    model_name: 'jethexa'
+
     capabilities:
       MOBILITY: 0.6
-      VISION: 0.0
+      VISION: 1.0
       BATTERY: 1.0
       PAYLOAD: 0.6
 
     thresholds:
       MOBILITY: 0.3
-      VISION: 0.0
+      VISION: 0.3
       BATTERY: 0.15
 
     # Assigns cap = base * fault
@@ -23,12 +23,12 @@
       mobility_penalty: 0.4
       vision_penalty: 0.8
       battery_penalty: 0.9
-    
+
     nav2:
-      enabled: false
+      enabled: true
       use_sim_time: true
-      map_yaml: "zones_map.yaml"
-      params_file: "nav2_jethexa.yaml"
+      map_yaml: 'zones_map.yaml'
+      params_file: 'nav2_jethexa.yaml'
       initial_pose:
         x: 0.0
         y: 0.0
@@ -38,10 +38,10 @@
       has_battery: false
       drain_rate_idle: 0.0005
       drain_rate_active: 0.002
-      
+
       watchdogs:
-        topics: ["odom", "scan"]
-        types: ["nav_msgs.msg.Odometry", "sensor_msgs.msg.LaserScan"]
-        capabilities: ["MOBILITY", "VISION"]
-        reliability:  ["reliable", "best_effort"] 
+        topics: ['odom', 'scan']
+        types: ['nav_msgs.msg.Odometry', 'sensor_msgs.msg.LaserScan']
+        capabilities: ['MOBILITY', 'VISION']
+        reliability: ['reliable', 'best_effort']
         timeouts: [2.0, 2.0]

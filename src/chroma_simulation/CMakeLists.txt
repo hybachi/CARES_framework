@@ -13,12 +13,7 @@ install(
 )
 
 install(PROGRAMS
-  scripts/jethexa_gait.py
-  DESTINATION lib/${PROJECT_NAME}
-)
-
-install(PROGRAMS
-  scripts/zone_monitor.py
+  scripts/jethexa_gait.py scripts/zone_monitor.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

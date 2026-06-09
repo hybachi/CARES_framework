@@ -15,7 +15,7 @@ setup(
     zip_safe=True,
     maintainer='H.A. Sharif',
     maintainer_email='hiba2anwar@gmail.com',
-    description='Hardware and navigation bridges for the CHROMA framework',
+    description='Hardware bridges for the CHROMA framework',
     license='Apache-2.0',
     tests_require=['pytest'],
     entry_points={

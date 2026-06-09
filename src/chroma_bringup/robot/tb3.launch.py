@@ -1,3 +1,11 @@
+"""
+tb3.launch.py
+Hardware drivers and state publishers for physical TurtleBot3 deployment.
+
+Author: H.A. Sharif
+Year: 2026
+"""
+
 import os
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
@@ -14,8 +22,8 @@ def generate_launch_description():
     robot_id = LaunchConfiguration('robot_id')
 
     tb3_param  = os.path.join(tb3_bringup, 'param', 'humble', f'{TURTLEBOT3_MODEL}.yaml')
-    urdf       = os.path.join(tb3_description, 'urdf', f'turtlebot3_{TURTLEBOT3_MODEL}.urdf')
-    robot_desc = Command(['xacro ', urdf, ' namespace:=', robot_id, '/'])
+    urdf = os.path.join(tb3_description, 'urdf', f'turtlebot3_{TURTLEBOT3_MODEL}.urdf')
+    robot_description = Command(['xacro ', urdf, ' namespace:=', robot_id, '/'])
 
     return LaunchDescription([
         DeclareLaunchArgument('robot_id', default_value='tb3_0'),
@@ -25,7 +33,7 @@ def generate_launch_description():
             package='robot_state_publisher',
             executable='robot_state_publisher',
             namespace=robot_id,
-            parameters=[{'robot_description': robot_desc, 'use_sim_time': False}],
+            parameters=[{'robot_description': robot_description, 'use_sim_time': False}],
             remappings=[('/tf', 'tf'), ('/tf_static', 'tf_static')],
             output='screen'
         ),

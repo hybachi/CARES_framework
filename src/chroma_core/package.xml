@@ -3,9 +3,15 @@
 <package format="3">
   <name>chroma_core</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
-  <maintainer email="hiba2anwar@gmail.com">hybachi</maintainer>
-  <license>TODO: License declaration</license>
+  <description>Core capabilities, bidding, and mission logic for CHROMA</description>
+  <maintainer email="hiba2anwar@gmail.com">H.A. Sharif</maintainer>
+  <license>Apache-2.0</license>
+
+  <depend>rclpy</depend>
+  <depend>std_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>nav_msgs</depend>
+  <depend>chroma_interfaces</depend>
 
   <export>
     <build_type>ament_python</build_type>

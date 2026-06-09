@@ -3,15 +3,16 @@
 <package format="3">
   <name>chroma_simulation</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
-  <maintainer email="hiba2anwar@gmail.com">hybachi</maintainer>
-  <license>TODO: License declaration</license>
+  <description>Gazebo simulation assets and hardware mock nodes for CHROMA</description>
+  <maintainer email="hiba2anwar@gmail.com">H.A. Sharif</maintainer>
+  <license>Apache-2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <exec_depend>rclpy</exec_depend>
-  <exec_depend>geometry_msgs</exec_depend>
-  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>ros_gz_sim</exec_depend>
+  <exec_depend>ros_ign_bridge</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>xacro</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>

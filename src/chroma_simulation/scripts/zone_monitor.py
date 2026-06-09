@@ -1,4 +1,13 @@
 #!/usr/bin/env python3
+
+"""
+zone_monitor.py
+Monitors robot poses and injects configured faults when they enter hazardous areas.
+
+Author: H.A. Sharif
+Year: 2026
+"""
+
 import os
 import yaml
 import rclpy
@@ -11,39 +20,43 @@ from ament_index_python.packages import get_package_share_directory
 class ZoneMonitor(Node):
     def __init__(self):
         super().__init__('zone_monitor')
-        
-        chroma_sim_dir = get_package_share_directory("chroma_simulation")
-        swarm_config_path = os.path.join(chroma_sim_dir, "config", "swarm_config.yaml")
-        
-        with open(swarm_config_path, 'r') as f:
-            swarm_data = yaml.safe_load(f).get('swarm', {})
+        self.setup_state()
+        self.setup_pubs_subs()
 
+    # -------- Setup --------
+
+    def setup_state(self):
         self.robot_states = {}
-        self.publishers_dict = {}
+        self.fault_pubs = {}
+        
+        sim_dir = get_package_share_directory("chroma_simulation")
+        config_path = os.path.join(sim_dir, "config", "swarm_config.yaml")
+        
+        with open(config_path, 'r') as f:
+            self.swarm_data = yaml.safe_load(f).get('swarm', {})
 
-        for robot_id, params in swarm_data.items():
-            if 'hazard_zone' in params:
-                rule = params['hazard_zone']
-                
-                self.robot_states[robot_id] = {
-                    'in_hazard': False,
-                    'rule': rule
-                }
+    def setup_pubs_subs(self):
+        for robot_id, params in self.swarm_data.items():
+            if 'hazard_zone' not in params:
+                continue
 
-                pub_topic = f'/{robot_id}/inject_fault'
-                self.publishers_dict[robot_id] = self.create_publisher(String, pub_topic, 10)
+            self.robot_states[robot_id] = {
+                'in_hazard': False,
+                'rule': params['hazard_zone']
+            }
 
-                sub_topic = f'/{robot_id}/odom'
-                self.create_subscription(
-                    Odometry,
-                    sub_topic,
-                    partial(self.odom_callback, robot_id=robot_id), 
-                    10
-                )
-                
-                self.get_logger().info(f"Tracking {robot_id} for Hazard Zone")
+            pub_topic = f'/{robot_id}/inject_fault'
+            self.fault_pubs[robot_id] = self.create_publisher(String, pub_topic, 10)
 
-    def odom_callback(self, msg, robot_id):
+            sub_topic = f'/{robot_id}/odom'
+            cb = partial(self.odom_cb, robot_id=robot_id)
+            self.create_subscription(Odometry, sub_topic, cb, 10)
+            
+            self.get_logger().info(f"Tracking {robot_id} for Hazard Zone")
+
+    # -------- Callbacks --------
+
+    def odom_cb(self, msg, robot_id):
         x = msg.pose.pose.position.x
         y = msg.pose.pose.position.y
 
@@ -59,19 +72,21 @@ class ZoneMonitor(Node):
 
         if in_zone and not state['in_hazard']:
             state['in_hazard'] = True
-            self.get_logger().warn(f"[{robot_id}] entered hazard zone! Injecting: {rule['fault']}")
-            
-            fault_msg = String()
-            fault_msg.data = rule['fault']
-            self.publishers_dict[robot_id].publish(fault_msg)
+            self.get_logger().warn(f"[{robot_id}] entered hazard zone!")
+            self.send_fault(robot_id, rule['fault'])
             
         elif not in_zone and state['in_hazard']:
             state['in_hazard'] = False
-            self.get_logger().info(f"[{robot_id}] returned to Safe Zone. Clearing faults.")
-            
-            clear_msg = String()
-            clear_msg.data = "reset"
-            self.publishers_dict[robot_id].publish(clear_msg)
+            self.get_logger().info(f"[{robot_id}] returned to Safe Zone.")
+            self.send_fault(robot_id, "reset")
+
+    # -------- Helper --------
+
+    def send_fault(self, robot_id, fault_type):
+        msg = String()
+        msg.data = fault_type
+        self.fault_pubs[robot_id].publish(msg)
+
 
 def main(args=None):
     rclpy.init(args=args)
