@@ -3,219 +3,236 @@ mission_executor.py
 Breaks high-level task types into executable sequences.
 
 Author: H.A. Sharif
-Year: 2026 
+Year: 2026
 """
 
 import rclpy
 import math
+import time
 from rclpy.node import Node
+from rclpy.action import ActionServer, CancelResponse
+from rclpy.callback_groups import ReentrantCallbackGroup
+from rclpy.executors import MultiThreadedExecutor
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Point
 from chroma_interfaces.msg import Task, TaskAllocation
+from chroma_interfaces.action import ExecuteMission
 
 class MissionExecutor(Node):
+
     def __init__(self):
         super().__init__('mission_executor')
-        self.setup_params()
+
+        self.load_params()
         self.setup_state()
         self.setup_pubs_subs()
-        self.get_logger().info(f"[{self.robot_id}] Mission Executor ready")
+
+        self.get_logger().info(f"[{self.robot_id}] Mission Executor Action Server ready.")
 
     # -------- Setup --------
 
-    def setup_params(self):
+    def load_params(self):
         self.declare_parameter('robot_id', 'unknown')
         self.robot_id = self.get_parameter('robot_id').value
 
     def setup_state(self):
-        self.global_tasks = {}
-        self.current_mission = None
-        self.mission_type = ""
         self.current_pose = Point()
-        self.waypoints = []
-        self.current_wp_idx = 0
-        self.wait_timer = None
+        self.current_wp_status = None
+        # Allows action and subscription callbacks to run concurrently
+        self.cb_group = ReentrantCallbackGroup()
 
     def setup_pubs_subs(self):
-        self.create_subscription(Task, '/mission/tasks', self.global_task_cb, 10)
-        self.create_subscription(TaskAllocation, '/swarm/allocation', self.global_alloc_cb, 10)
-        self.create_subscription(Odometry, 'odom', self.odom_cb, 10)
-        self.create_subscription(TaskAllocation, 'execution_status', self.bridge_status_cb, 10)
+        self.create_subscription(Odometry, 'odom', self.odom_cb, 10, callback_group=self.cb_group)
+        self.create_subscription(TaskAllocation, 'execution_status', self.bridge_status_cb, 10, callback_group=self.cb_group)
 
-        self.alloc_pub = self.create_publisher(TaskAllocation, '/swarm/allocation', 10)
-        self.bridge_pub = self.create_publisher(Task, 'execute_waypoint', 10)
+        self.execute_pub = self.create_publisher(Task, 'execute_waypoint', 10)
+        self.cancel_pub = self.create_publisher(Task, 'cancel_waypoint', 10)
+
+        self.action_server = ActionServer(
+            self,
+            ExecuteMission,
+            'execute_mission',
+            execute_callback=self.execute_cb,
+            cancel_callback=self.cancel_cb,
+            callback_group=self.cb_group
+        )
 
     # -------- Callbacks --------
 
     def odom_cb(self, msg):
         self.current_pose = msg.pose.pose.position
 
-    def global_task_cb(self, msg):
-        self.global_tasks[msg.task_id] = msg
-
-    def global_alloc_cb(self, msg):
-        if msg.robot_id == self.robot_id and msg.status == "ASSIGNED" and self.current_mission is None:
-            task = self.global_tasks.get(msg.task_id)
-            if not task: 
-                return
-
-            self.current_mission = msg.task_id
-            self.mission_type = task.type
-            self.get_logger().info(f"Starting Mission: {self.current_mission}")
-            
-            self.generate_waypoints(task)
-            self.send_waypoint()
-            
-        elif msg.task_id == self.current_mission and msg.status in ["ABORTED", "CANCELLED"]:
-            self.get_logger().warn(f"Mission halted ({msg.status}). Dropping execution")
-            self.current_mission = None
-            if self.wait_timer:
-                self.wait_timer.cancel()
-
     def bridge_status_cb(self, msg):
-        if self.current_mission is None: 
-            return
+        self.current_wp_status = msg.status
 
-        if msg.status == "FAILED":
-            if self.mission_type == "DELIVERY":
-                self.get_logger().error("Failed to reach delivery point. Aborting")
-                self.abort_mission()
-                return
-            elif self.mission_type == "SEARCH":
-                self.get_logger().warn("Waypoint blocked by obstacle. Skipping")
-        
-        if self.mission_type == "DELIVERY" and msg.status == "COMPLETED":
-            action = "Pickup" if self.current_wp_idx == 0 else "Drop-off"
-            self.get_logger().info(f"{action} reached. Waiting 5 seconds...")
+    def cancel_cb(self, goal_handle):
+        self.get_logger().warn("Preemption requested by Allocator. Halting Execution.")
+        self.publish_halt()
+        return CancelResponse.ACCEPT
 
-            # Simulates physical load/unload delay
-            self.wait_timer = self.create_timer(5.0, self.finish_wait)
-        else:
-            self.current_wp_idx += 1
-            self.send_waypoint()
+    # -------- Execution Logic --------
 
-    # -------- Logic --------
+    def execute_cb(self, goal_handle):
+        task = goal_handle.request.task
+        self.get_logger().info(f"Executing Mission: {task.task_id} ({task.type})")
 
-    def abort_mission(self):
-        fail_msg = TaskAllocation()
-        fail_msg.task_id = self.current_mission
-        fail_msg.robot_id = self.robot_id
-        fail_msg.status = "FAILED"
-        self.alloc_pub.publish(fail_msg)
-        self.current_mission = None
+        waypoints = self.generate_waypoints(task)
+        total_wps = len(waypoints)
 
-    def finish_wait(self):
-        if self.wait_timer:
-            self.wait_timer.cancel()
-            self.wait_timer = None
-            
-        self.get_logger().info("Action complete. Resuming mission")
-        self.current_wp_idx += 1
-        self.send_waypoint()
+        for i, wp in enumerate(waypoints):
+            if goal_handle.is_cancel_requested:
+                return self.abort_execution(goal_handle)
+
+            self.current_wp_status = "IN_PROGRESS"
+            self.publish_waypoint(task.task_id, i, wp)
+            self.publish_feedback(goal_handle, i, total_wps)
+
+            while self.current_wp_status == "IN_PROGRESS":
+                if goal_handle.is_cancel_requested:
+                    self.publish_halt()
+                    return self.abort_execution(goal_handle)
+                time.sleep(0.1)
+
+            if self.current_wp_status == "FAILED":
+                if task.type == "DELIVERY":
+                    self.get_logger().error("Delivery point unreachable. Aborting mission.")
+                    goal_handle.abort()
+                    return ExecuteMission.Result(success=False)
+                elif task.type == "SEARCH":
+                    self.get_logger().warn("Waypoint blocked. Skipping to next.")
+
+            if task.type == "DELIVERY" and self.current_wp_status == "COMPLETED":
+                action = "Pickup" if i == 0 else "Drop-off"
+                self.get_logger().info(f"{action} reached. Waiting 5 seconds...")
+                if not self.wait_with_preemption(goal_handle, duration=5.0):
+                    return self.abort_execution(goal_handle)
+
+        self.get_logger().info(f"Mission {task.task_id} Completed.")
+        goal_handle.succeed()
+        return ExecuteMission.Result(success=True)
+
+    # -------- Waypoint Generation --------
 
     def generate_waypoints(self, task):
-        self.waypoints = []
-        self.current_wp_idx = 0
-
+        waypoints = []
         p1 = task.location
         p2 = task.target_area[0] if len(task.target_area) > 0 else p1
 
         if task.type == "DELIVERY":
             yaw_ab = math.atan2(p2.y - p1.y, p2.x - p1.x)
             p1.z = yaw_ab
-            p2.z = yaw_ab 
-            
-            self.waypoints.append(p1)
-            self.waypoints.append(p2)
+            p2.z = yaw_ab
+            waypoints.append(p1)
+            waypoints.append(p2)
 
         elif task.type == "SEARCH":
-            self.build_search_pattern(p1, p2)
+            waypoints = self.build_search_pattern(p1, p2)
 
-    def build_search_pattern(self, p1: Point, p2: Point):
+        return waypoints
+
+    def build_search_pattern(self, p1, p2):
         min_x, max_x = min(p1.x, p2.x), max(p1.x, p2.x)
         min_y, max_y = min(p1.y, p2.y), max(p1.y, p2.y)
-        
+
         corners = [
             (min_x, min_y), (max_x, min_y),
             (max_x, max_y), (min_x, max_y)
         ]
-        
+
         cx, cy = self.current_pose.x, self.current_pose.y
-        start_x, start_y = min(corners, key=lambda c: math.hypot(c[0]-cx, c[1]-cy))
-        
+        start_x, start_y = min(corners, key=lambda c: math.hypot(c[0] - cx, c[1] - cy))
+
         width = max_x - min_x
         height = max_y - min_y
-        step_size = 0.5 
+        step_size = 0.5
         raw_points = []
-        
-        # Sweep parallel to the longest edge for efficiency
-        if width >= height: 
+
+        if width >= height:
             y_dir = 1 if start_y == min_y else -1
             curr_y = start_y
             curr_x = start_x
-            
+
             while min_y <= curr_y <= max_y:
                 raw_points.append((curr_x, curr_y))
                 curr_x = max_x if curr_x == min_x else min_x
-                curr_y += (step_size * y_dir)
-                
-        else: 
+                curr_y += step_size * y_dir
+        else:
             x_dir = 1 if start_x == min_x else -1
             curr_x = start_x
             curr_y = start_y
-            
+
             while min_x <= curr_x <= max_x:
                 raw_points.append((curr_x, curr_y))
                 curr_y = max_y if curr_y == min_y else min_y
-                curr_x += (step_size * x_dir)
+                curr_x += step_size * x_dir
 
-        self.apply_orientations(raw_points)
+        return self.apply_orientations(raw_points)
 
     def apply_orientations(self, raw_points):
+        waypoints = []
+
         for i in range(len(raw_points)):
             x1, y1 = raw_points[i]
-            
+
             if i < len(raw_points) - 1:
-                x2, y2 = raw_points[i+1]
+                x2, y2 = raw_points[i + 1]
                 yaw = math.atan2(y2 - y1, x2 - x1)
             else:
-                yaw = self.waypoints[-1].z if len(self.waypoints) > 0 else 0.0
-            
+                # Inherit last waypoint's heading at the final point
+                yaw = waypoints[-1].z if len(waypoints) > 0 else 0.0
+
             pt = Point()
             pt.x = float(x1)
             pt.y = float(y1)
-            pt.z = float(yaw) 
-            self.waypoints.append(pt)
+            pt.z = float(yaw)
+            waypoints.append(pt)
 
-    def send_waypoint(self):
-        if self.current_mission is None: 
-            return
+        return waypoints
 
-        if self.current_wp_idx < len(self.waypoints):
-            wp = self.waypoints[self.current_wp_idx]
-            wp_task = Task()
-            wp_task.task_id = f"{self.current_mission}_WP_{self.current_wp_idx}"
-            wp_task.type = "GOTO"
-            wp_task.location = wp
-            
-            self.get_logger().info(f"Sending Waypoint {self.current_wp_idx + 1}/{len(self.waypoints)}")
-            self.bridge_pub.publish(wp_task)
-        else:
-            self.get_logger().info(f"Mission {self.current_mission} Completed")
-            complete_msg = TaskAllocation()
-            complete_msg.task_id = self.current_mission
-            complete_msg.robot_id = self.robot_id
-            complete_msg.status = "COMPLETED"
-            self.alloc_pub.publish(complete_msg)
-            self.current_mission = None
+    # -------- Helpers --------
+
+    def publish_waypoint(self, task_id, index, wp):
+        wp_task = Task()
+        wp_task.task_id = f"{task_id}_WP_{index}"
+        wp_task.type = "GOTO"
+        wp_task.location = wp
+        self.execute_pub.publish(wp_task)
+
+    def publish_feedback(self, goal_handle, current, total):
+        feedback = ExecuteMission.Feedback()
+        feedback.progress = float(current) / total
+        feedback.status_message = f"Waypoint {current + 1}/{total}"
+        goal_handle.publish_feedback(feedback)
+
+    def publish_halt(self):
+        halt = Task()
+        halt.task_id = "HALT"
+        self.cancel_pub.publish(halt)
+
+    def abort_execution(self, goal_handle):
+        goal_handle.canceled()
+        self.get_logger().info("Execution safely aborted.")
+        return ExecuteMission.Result(success=False)
+
+    def wait_with_preemption(self, goal_handle, duration):
+        # Checks cancellation every tick during physical interaction delays
+        ticks = int(duration / 0.1)
+        for _ in range(ticks):
+            if goal_handle.is_cancel_requested:
+                return False
+            time.sleep(0.1)
+        return True
 
 
 def main(args=None):
     rclpy.init(args=args)
     node = MissionExecutor()
-    rclpy.spin(node)
+    executor = MultiThreadedExecutor()
+    executor.add_node(node)
+    executor.spin()
     node.destroy_node()
     rclpy.shutdown()
+
 
 if __name__ == '__main__':
     main()

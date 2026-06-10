@@ -16,8 +16,8 @@
 
     # Assigns cap = base * fault
     fault_impacts:
-      mobility_failure: 0.0
-      perception_failure: 0.1
+      mobility_failure: 0.3
+      perception_failure: 0.2
       battery_failure: 0.0
 
       mobility_penalty: 0.6

@@ -1,0 +1,7 @@
+chroma_interfaces/Task task
+---
+bool success
+string final_robot_id
+---
+float32 progress
+string status_message
