@@ -31,6 +31,8 @@ class TaskAllocator(Node):
 
     def setup_state(self):
         self.my_caps = {}
+        self.my_degraded_states = {}
+        
         self.swarm_knowledge = {}
         self.current_pose = Point() 
         self.bids_received = {} 
@@ -67,6 +69,9 @@ class TaskAllocator(Node):
 
         for cap in msg.capabilities:
             self.swarm_knowledge[msg.robot_id][cap.type] = cap.value
+            
+            if msg.robot_id == self.robot_id:
+                self.my_degraded_states[cap.type] = cap.is_degraded
 
         if msg.robot_id == self.robot_id:
             self.my_caps = self.swarm_knowledge[self.robot_id]
@@ -100,12 +105,14 @@ class TaskAllocator(Node):
         if task.task_id in self.assigned_tasks or task.task_id in self.tasks_bid_on or self.active_task is not None:
             return
 
+        if "BATTERY" not in task.required_capabilities:
+            task.required_capabilities.append("BATTERY")
+
         if not self.check_eligibility(task):
             return
 
         self.tasks_bid_on.add(task.task_id)
         
-        # Random delay prevents network flooding from simultaneous bids
         delay = random.uniform(0.1, 0.5)
 
         def on_bid_timer():
@@ -129,16 +136,10 @@ class TaskAllocator(Node):
             return
         
         task = self.active_task
-        min_req = task.min_capability_score if task.min_capability_score > 0.0 else 0.4
 
         for req in task.required_capabilities:
-            current_score = self.my_caps.get(req, 0.0)
-            
-            # Buffer prevents task fluctuations near threshold
-            threshold = min_req * 0.8
-
-            if current_score < threshold:
-                self.publish_log(f"Aborting {task.task_id}: {req} dropped")
+            if self.my_degraded_states.get(req, False):
+                self.publish_log(f"Aborting {task.task_id}: {req} is degraded.")
                 self.abort_task(task)
                 return
     
@@ -153,22 +154,27 @@ class TaskAllocator(Node):
 
         for req in task.required_capabilities:
             my_score = self.my_caps.get(req, 0.0)
+            
             if my_score < min_req:
                 self.publish_log(f"Ineligible for {task.task_id}: {req} too low")
                 return False
+                
+            if self.my_degraded_states.get(req, False):
+                self.publish_log(f"Ineligible for {task.task_id}: {req} is degraded")
+                return False
+                
         return True
 
     def calculate_score(self, task):
         cap_sum = sum(self.my_caps.get(req, 0.0) for req in task.required_capabilities)
         avg_cap = cap_sum / max(1, len(task.required_capabilities))
 
-        # Manhattan distance is cheaper than hypotenuse for heuristic
+        # Manhattan distance provides a cheaper heuristic than hypotenuse
         dist = abs(task.location.x - self.current_pose.x) + abs(task.location.y - self.current_pose.y)
-        dist_factor = 1.0 / (1.0 + dist)
 
-        priority_norm = (task.priority if task.priority > 0 else 1.0) / 10.0
+        dist_penalty = 1.0 / (1.0 + (dist * 0.2))
 
-        return avg_cap * priority_norm * dist_factor
+        return float(avg_cap * dist_penalty)
 
     def submit_bid(self, task):
         if task.task_id in self.assigned_tasks or self.active_task is not None:
@@ -195,7 +201,6 @@ class TaskAllocator(Node):
                 timer.cancel()
             self.resolve_auction(task)
 
-        # Fixed auction window gives slow networks time to bid
         self.auction_timers[task.task_id] = self.create_timer(2.0, on_auction_timer)
 
     def resolve_auction(self, task):
@@ -207,7 +212,7 @@ class TaskAllocator(Node):
         highest_score = -1.0
         winner_id = ""
 
-        # Alphabetical sorting for tie-breaking
+        # Alphabetical sorting ensures deterministic tie-breaking
         for rid, score in all_bids.items():
             if score > highest_score:
                 highest_score = score
