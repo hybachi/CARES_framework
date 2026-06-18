@@ -29,7 +29,11 @@ QOS_PRESETS = {
 
 class TelemetryBridge(Node):
     def __init__(self):
-        super().__init__('telemetry_bridge')
+        super().__init__(
+            'telemetry_bridge',
+            allow_undeclared_parameters=True,
+            automatically_declare_parameters_from_overrides=True
+        )
         self.setup_params()
         self.setup_watchdogs()
         self.setup_pubs_timers()
@@ -38,11 +42,9 @@ class TelemetryBridge(Node):
     # -------- Setup --------
 
     def setup_params(self):
-        self.declare_parameter('robot_id', 'unknown')
-        self.robot_id = self.get_parameter('robot_id').value
-
-        self.declare_parameter('telemetry.has_battery', False)
-        self.has_battery = self.get_parameter('telemetry.has_battery').value
+        self.robot_id = self.get_parameter('robot_id').value if self.has_parameter('robot_id') else 'unknown'        
+        self.baselines = {k: v.value for k, v in self.get_parameters_by_prefix('capabilities').items()}
+        self.has_battery = self.get_parameter('telemetry.has_battery').value if self.has_parameter('telemetry.has_battery') else False
 
         if self.has_battery:
             self.setup_real_battery()
@@ -50,24 +52,18 @@ class TelemetryBridge(Node):
             self.setup_sim_battery()
 
     def setup_real_battery(self):
-        self.declare_parameter('telemetry.battery_topic', 'battery_state')
-        self.declare_parameter('telemetry.battery_v_max', 12.6)
-        self.declare_parameter('telemetry.battery_v_min', 11.1)
-
-        self.v_max = self.get_parameter('telemetry.battery_v_max').value
-        self.v_min = self.get_parameter('telemetry.battery_v_min').value
-        battery_topic = self.get_parameter('telemetry.battery_topic').value
+        self.v_max = self.get_parameter('telemetry.battery_v_max').value if self.has_parameter('telemetry.battery_v_max') else 12.6
+        self.v_min = self.get_parameter('telemetry.battery_v_min').value if self.has_parameter('telemetry.battery_v_min') else 11.1
+        battery_topic = self.get_parameter('telemetry.battery_topic').value if self.has_parameter('telemetry.battery_topic') else 'battery_state'
         
         self.create_subscription(BatteryState, battery_topic, self.battery_cb, 10)
 
     def setup_sim_battery(self):
         self.is_active = False
-        self.sim_battery_level = 1.0
+        self.sim_battery_level = self.baselines.get('BATTERY', 1.0)
 
-        self.declare_parameter('telemetry.drain_rate_idle', 0.0005)
-        self.declare_parameter('telemetry.drain_rate_active', 0.002)
-        self.drain_idle = self.get_parameter('telemetry.drain_rate_idle').value
-        self.drain_active = self.get_parameter('telemetry.drain_rate_active').value
+        self.drain_idle = self.get_parameter('telemetry.drain_rate_idle').value if self.has_parameter('telemetry.drain_rate_idle') else 0.0005
+        self.drain_active = self.get_parameter('telemetry.drain_rate_active').value if self.has_parameter('telemetry.drain_rate_active') else 0.002
 
         # Monitor active tasks to calculate battery drain
         self.create_subscription(TaskAllocation, '/swarm/allocation', self.alloc_cb, 10)
@@ -75,21 +71,11 @@ class TelemetryBridge(Node):
     def setup_watchdogs(self):
         self.watchdogs = {}
 
-        string_array_desc = ParameterDescriptor(type=ParameterType.PARAMETER_STRING_ARRAY)
-        double_array_desc = ParameterDescriptor(type=ParameterType.PARAMETER_DOUBLE_ARRAY)
-
-        self.declare_parameter('telemetry.watchdogs.topics', value=None, descriptor=string_array_desc)
-        self.declare_parameter('telemetry.watchdogs.types', value=None, descriptor=string_array_desc)
-        self.declare_parameter('telemetry.watchdogs.capabilities', value=None, descriptor=string_array_desc)
-        self.declare_parameter('telemetry.watchdogs.timeouts', value=None, descriptor=double_array_desc)
-        self.declare_parameter('telemetry.watchdogs.reliability', value=None, descriptor=string_array_desc)
-
-        # Use fallbacks to prevent missing config crashes
-        topics = self.get_safe_list('telemetry.watchdogs.topics', [])
-        types = self.get_safe_list('telemetry.watchdogs.types', [])
-        caps = self.get_safe_list('telemetry.watchdogs.capabilities', [])
-        timeouts = self.get_safe_list('telemetry.watchdogs.timeouts', [])
-        reliability = self.get_safe_list('telemetry.watchdogs.reliability', ['reliable'] * len(topics))
+        topics = self.get_parameter('telemetry.watchdogs.topics').value if self.has_parameter('telemetry.watchdogs.topics') else []
+        types = self.get_parameter('telemetry.watchdogs.types').value if self.has_parameter('telemetry.watchdogs.types') else []
+        caps = self.get_parameter('telemetry.watchdogs.capabilities').value if self.has_parameter('telemetry.watchdogs.capabilities') else []
+        timeouts = self.get_parameter('telemetry.watchdogs.timeouts').value if self.has_parameter('telemetry.watchdogs.timeouts') else []
+        reliability = self.get_parameter('telemetry.watchdogs.reliability').value if self.has_parameter('telemetry.watchdogs.reliability') else ['reliable'] * len(topics)
 
         for i, topic in enumerate(topics):
             msg_type_str = types[i]
@@ -135,7 +121,7 @@ class TelemetryBridge(Node):
         
         if msg.status == "ASSIGNED":
             self.is_active = True
-        elif msg.status in ["COMPLETED", "ABORTED", "FAILED"]:
+        elif msg.status in ["COMPLETED", "ABORTED", "FAILED", "CANCELLED"]:
             self.is_active = False
 
     def watchdog_cb(self, msg, cap_name):
@@ -154,14 +140,15 @@ class TelemetryBridge(Node):
             time_since_last_msg = (now - state['last_seen']).nanoseconds / 1e9
 
             if time_since_last_msg > state['timeout'] and state['healthy']:
-                self.get_logger().warn(f"Telemetry Watchdog: {cap_name} timed out! Degrading capability.")
+                self.get_logger().warn(f"Watchdog: {cap_name} timed out! Degrading capability")
                 state['healthy'] = False
                 self.publish_cap(cap_name, 0.1)
 
-            elif not state['healthy']:
-                self.get_logger().info(f"Telemetry Watchdog: {cap_name} recovered!")
+            elif time_since_last_msg <= state['timeout'] and not state['healthy']:
+                self.get_logger().info(f"Watchdog: {cap_name} recovered!")
                 state['healthy'] = True
-                self.publish_cap(cap_name, 1.0)
+                baseline_val = self.baselines.get(cap_name, 1.0)
+                self.publish_cap(cap_name, baseline_val)
             
     def simulate_battery_drain(self):
         drain = self.drain_active if self.is_active else self.drain_idle
@@ -181,7 +168,6 @@ class TelemetryBridge(Node):
         return val if val is not None else default_val
 
     def get_msg_class(self, type_string):
-        # Dynamic import allows reusing bridge across topics
         try:
             parts = type_string.split('.')
             module_name = '.'.join(parts[:-1])

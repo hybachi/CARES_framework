@@ -89,7 +89,7 @@ namespace chroma_rviz_plugins
 
         if (task_msg.type == "SEARCH")
         {
-            task_msg.required_capabilities = {"VISION", "MOBILITY"};
+            task_msg.required_capabilities = {"PERCEPTION", "MOBILITY"};
             task_msg.min_capability_score = 0.4;
         }
         else
